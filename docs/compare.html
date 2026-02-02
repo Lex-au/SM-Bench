@@ -1,0 +1,45 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>🧠🔨 Safetymaxxed Bench - Compare</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body data-page="compare" class="export-shell">
+    <header class="site-header">
+      <nav class="navbar">
+        <a href="./index.html" class="brand">🧠🔨 Safetymaxxed Bench</a>
+        <div class="nav-links">
+          <a href="./index.html">Leaderboard</a>
+          <a href="./compare.html">Compare</a>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <div class="container">
+        <section class="card">
+          <span class="badge">Compare</span>
+          <h2 style="margin-top: 8px;">Select runs to compare</h2>
+          <div class="field" style="margin-top: 12px;">
+            <label>Search runs</label>
+            <input
+              id="compare-search"
+              class="input"
+              placeholder="Search by model or vendor..."
+            />
+          </div>
+          <div id="compare-list" class="compare-run-list" style="margin-top: 12px;"></div>
+          <div id="compare-content" style="margin-top: 24px;"></div>
+        </section>
+      </div>
+    </main>
+    <script src="./app.js"></script>
+  </body>
+</html>
