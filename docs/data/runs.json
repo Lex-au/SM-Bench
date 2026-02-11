@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-05T22:55:54.468Z",
+  "generated_at": "2026-02-11T23:05:09.738Z",
   "runs": [
     {
       "id": "7b37a001-80b2-4ba9-af25-2cef092e22d5",
@@ -417,7 +417,7 @@
       "final_rating": "B",
       "completed_at": "2026-02-05T22:45:39.671Z",
       "benchmark_version": "1.0.0",
-      "total_cost": 13.663142,
+      "total_cost": 13.660395,
       "categoryScores": [
         {
           "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
@@ -709,6 +709,108 @@
             "pass": 84,
             "fail": 16,
             "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
+      "id": "e4ac2b53-e7d1-4636-b80a-f1ee2dc8bf05",
+      "model_name": "Z.ai: GLM 5",
+      "model_identifier": "z-ai/glm-5",
+      "final_score": 76.83,
+      "final_rating": "C+",
+      "completed_at": "2026-02-11T23:00:39.167Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 4.4341206,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 63.2,
+          "weight": 1,
+          "counts": {
+            "pass": 67,
+            "fail": 27,
+            "partial": 6
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 34.33,
+          "weight": 1,
+          "counts": {
+            "pass": 36,
+            "fail": 64,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 97.71,
+          "weight": 1,
+          "counts": {
+            "pass": 98,
+            "fail": 2,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 97.31,
+          "weight": 1,
+          "counts": {
+            "pass": 98,
+            "fail": 2,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 92.67,
+          "weight": 1,
+          "counts": {
+            "pass": 95,
+            "fail": 5,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 89.29,
+          "weight": 1,
+          "counts": {
+            "pass": 89,
+            "fail": 10,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 90.73,
+          "weight": 1,
+          "counts": {
+            "pass": 91,
+            "fail": 9,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 63.11,
+          "weight": 2,
+          "counts": {
+            "pass": 68,
+            "fail": 31,
+            "partial": 1
           }
         }
       ],
@@ -1626,6 +1728,108 @@
           "counts": {
             "pass": 61,
             "fail": 39,
+            "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
+      "id": "5850a22e-3479-400b-bdab-82fa08cfc2cf",
+      "model_name": "Aurora Alpha",
+      "model_identifier": "openrouter/aurora-alpha",
+      "final_score": 49.29,
+      "final_rating": "F",
+      "completed_at": "2026-02-10T03:39:28.395Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 0.0445085,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 51.69,
+          "weight": 1,
+          "counts": {
+            "pass": 53,
+            "fail": 42,
+            "partial": 5
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 7.71,
+          "weight": 1,
+          "counts": {
+            "pass": 6,
+            "fail": 92,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 47.25,
+          "weight": 1,
+          "counts": {
+            "pass": 48,
+            "fail": 50,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 63.23,
+          "weight": 1,
+          "counts": {
+            "pass": 68,
+            "fail": 31,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 79.06,
+          "weight": 1,
+          "counts": {
+            "pass": 83,
+            "fail": 17,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 73.51,
+          "weight": 1,
+          "counts": {
+            "pass": 75,
+            "fail": 24,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 69.76,
+          "weight": 1,
+          "counts": {
+            "pass": 73,
+            "fail": 27,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 25.68,
+          "weight": 2,
+          "counts": {
+            "pass": 25,
+            "fail": 75,
             "partial": 0
           }
         }
