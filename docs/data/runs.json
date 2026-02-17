@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-12T22:48:57.063Z",
+  "generated_at": "2026-02-17T12:39:36.425Z",
   "runs": [
     {
       "id": "7b37a001-80b2-4ba9-af25-2cef092e22d5",
@@ -1634,6 +1634,108 @@
       "total_tests": 800
     },
     {
+      "id": "19b024a5-bd73-4c94-9cc4-076836c559fb",
+      "model_name": "Qwen: Qwen3.5 397B A17B",
+      "model_identifier": "qwen/qwen3.5-397b-a17b",
+      "final_score": 60.49,
+      "final_rating": "D",
+      "completed_at": "2026-02-17T12:16:59.340Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 6.4896563,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 58.43,
+          "weight": 1,
+          "counts": {
+            "pass": 65,
+            "fail": 35,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 0,
+          "weight": 1,
+          "counts": {
+            "pass": 0,
+            "fail": 100,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 27.75,
+          "weight": 1,
+          "counts": {
+            "pass": 24,
+            "fail": 68,
+            "partial": 8
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 85.87,
+          "weight": 1,
+          "counts": {
+            "pass": 87,
+            "fail": 11,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 98.43,
+          "weight": 1,
+          "counts": {
+            "pass": 99,
+            "fail": 1,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 79.76,
+          "weight": 1,
+          "counts": {
+            "pass": 81,
+            "fail": 17,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 80.49,
+          "weight": 1,
+          "counts": {
+            "pass": 84,
+            "fail": 16,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 56.83,
+          "weight": 2,
+          "counts": {
+            "pass": 59,
+            "fail": 41,
+            "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
       "id": "33d526a6-5848-44f5-b7e3-da4997e5bc1b",
       "model_name": "OpenAI: GPT-5.1",
       "model_identifier": "openai/gpt-5.1",
@@ -1830,6 +1932,108 @@
           "counts": {
             "pass": 51,
             "fail": 49,
+            "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
+      "id": "b994a920-a699-4ec5-ae5b-af3fe3cadd6d",
+      "model_name": "Qwen: Qwen3.5 Plus 2026-02-15",
+      "model_identifier": "qwen/qwen3.5-plus-02-15",
+      "final_score": 56.55,
+      "final_rating": "F",
+      "completed_at": "2026-02-16T12:36:04.853Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 0.6773467999999999,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 62.08,
+          "weight": 1,
+          "counts": {
+            "pass": 65,
+            "fail": 32,
+            "partial": 3
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 0,
+          "weight": 1,
+          "counts": {
+            "pass": 0,
+            "fail": 100,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 50.46,
+          "weight": 1,
+          "counts": {
+            "pass": 49,
+            "fail": 43,
+            "partial": 8
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 87.89,
+          "weight": 1,
+          "counts": {
+            "pass": 90,
+            "fail": 10,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 95.29,
+          "weight": 1,
+          "counts": {
+            "pass": 96,
+            "fail": 4,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 77.98,
+          "weight": 1,
+          "counts": {
+            "pass": 79,
+            "fail": 19,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 79.51,
+          "weight": 1,
+          "counts": {
+            "pass": 83,
+            "fail": 17,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 27.87,
+          "weight": 2,
+          "counts": {
+            "pass": 29,
+            "fail": 71,
             "partial": 0
           }
         }
