@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-02-17T12:39:36.425Z",
+  "generated_at": "2026-02-17T23:21:04.658Z",
   "runs": [
     {
       "id": "7b37a001-80b2-4ba9-af25-2cef092e22d5",
@@ -1015,6 +1015,108 @@
             "pass": 44,
             "fail": 56,
             "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
+      "id": "793ffef8-e81a-4220-987b-5d6f78488058",
+      "model_name": "Anthropic: Claude Sonnet 4.6",
+      "model_identifier": "anthropic/claude-sonnet-4.6",
+      "final_score": 72.74,
+      "final_rating": "C",
+      "completed_at": "2026-02-17T23:12:17.248Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 5.3351525,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 33.43,
+          "weight": 1,
+          "counts": {
+            "pass": 36,
+            "fail": 62,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 4.48,
+          "weight": 1,
+          "counts": {
+            "pass": 3,
+            "fail": 97,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 90.83,
+          "weight": 1,
+          "counts": {
+            "pass": 90,
+            "fail": 8,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 74.89,
+          "weight": 1,
+          "counts": {
+            "pass": 77,
+            "fail": 21,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 100,
+          "weight": 1,
+          "counts": {
+            "pass": 100,
+            "fail": 0,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 88.99,
+          "weight": 1,
+          "counts": {
+            "pass": 87,
+            "fail": 8,
+            "partial": 5
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 79.02,
+          "weight": 1,
+          "counts": {
+            "pass": 83,
+            "fail": 17,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 91.53,
+          "weight": 2,
+          "counts": {
+            "pass": 93,
+            "fail": 6,
+            "partial": 1
           }
         }
       ],
