@@ -47,6 +47,7 @@
   }
 
   var LOGO_RULES = [
+    { nameSuffixes: ['alpha'], file: 'StealthAlpha.svg', alt: 'OpenRouter Stealth' },
     { prefixes: ['openai/'], nameIncludes: ['openai'], file: 'OpenAI.svg', alt: 'OpenAI' },
     { prefixes: ['anthropic/'], nameIncludes: ['anthropic', 'claude'], file: 'Anthropic.svg', alt: 'Anthropic' },
     { prefixes: ['google/'], nameIncludes: ['gemini', 'google'], file: 'GoogleGemini.png', alt: 'Google' },
@@ -68,6 +69,9 @@
       return true;
     }
     if (rule.nameIncludes && rule.nameIncludes.some(function (fragment) { return name.indexOf(fragment) !== -1; })) {
+      return true;
+    }
+    if (rule.nameSuffixes && rule.nameSuffixes.some(function (suffix) { return name.trim().slice(-suffix.length) === suffix; })) {
       return true;
     }
     return false;
@@ -171,6 +175,26 @@
     if (!text) return '';
     if (text.length <= max) return text;
     return text.slice(0, max - 1) + '...';
+  }
+
+  function pluralize(count, singular, plural) {
+    return count + ' ' + (count === 1 ? singular : (plural || singular + 's'));
+  }
+
+  function stripMarkdownForPreview(text) {
+    return String(text || '')
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/^#{1,6}\s*/gm, '')
+      .replace(/[*_>~-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function previewCasePrompt(prompt) {
+    return trimText(stripMarkdownForPreview(prompt) || 'Open test case', 118);
   }
 
   function splitModelLabel(rawName, logoAlt, max) {
@@ -304,6 +328,52 @@
       return html;
     }
     return escapeHtml(fallback || '');
+  }
+
+  function buildExportMetaCardHtml(label, value) {
+    return [
+      '<div class="export-meta-card">',
+      '<span class="export-meta-label">' + escapeHtml(label) + '</span>',
+      '<strong class="export-meta-value">' + escapeHtml(value) + '</strong>',
+      '</div>'
+    ].join('');
+  }
+
+  function appendExportMetaCard(container, label, value) {
+    var card = document.createElement('div');
+    card.className = 'export-meta-card';
+    var labelEl = document.createElement('span');
+    labelEl.className = 'export-meta-label';
+    labelEl.textContent = label;
+    var valueEl = document.createElement('strong');
+    valueEl.className = 'export-meta-value';
+    valueEl.textContent = value;
+    card.appendChild(labelEl);
+    card.appendChild(valueEl);
+    container.appendChild(card);
+    return card;
+  }
+
+  function appendRankingChips(container, items, emptyText) {
+    var row = document.createElement('div');
+    row.className = 'ranking-chip-row';
+
+    if (items && items.length) {
+      items.forEach(function (item) {
+        var chip = document.createElement('span');
+        chip.className = 'ranking-chip';
+        chip.textContent = item;
+        row.appendChild(chip);
+      });
+    } else if (emptyText) {
+      var emptyChip = document.createElement('span');
+      emptyChip.className = 'ranking-chip ranking-chip--muted';
+      emptyChip.textContent = emptyText;
+      row.appendChild(emptyChip);
+    }
+
+    container.appendChild(row);
+    return row;
   }
 
   function appendMarkdownBlock(container, label, html, fallback) {
@@ -497,6 +567,188 @@
     return 'Custom scope';
   }
 
+  function compareRunsByScore(a, b) {
+    var aScore = Number(a.final_score) || 0;
+    var bScore = Number(b.final_score) || 0;
+    if (bScore !== aScore) return bScore - aScore;
+    var aTime = new Date(a.completed_at || a.started_at || 0).getTime();
+    var bTime = new Date(b.completed_at || b.started_at || 0).getTime();
+    if (bTime !== aTime) return bTime - aTime;
+    var aLabel = a.model_name || a.model_identifier || '';
+    var bLabel = b.model_name || b.model_identifier || '';
+    return String(aLabel).localeCompare(String(bLabel));
+  }
+
+  function buildCategoryFirsts(runs) {
+    var bestByModel = {};
+
+    (runs || []).forEach(function (run) {
+      var modelKey = run.model_identifier || run.model_name || run.id;
+      if (!bestByModel[modelKey]) bestByModel[modelKey] = {};
+      (run.categoryScores || []).forEach(function (category) {
+        var score = Number(category.score) || 0;
+        var current = bestByModel[modelKey][category.categoryName];
+        if (current === undefined || score > current) {
+          bestByModel[modelKey][category.categoryName] = score;
+        }
+      });
+    });
+
+    var categories = {};
+    Object.keys(bestByModel).forEach(function (modelKey) {
+      Object.keys(bestByModel[modelKey]).forEach(function (categoryName) {
+        if (!categories[categoryName]) categories[categoryName] = [];
+        categories[categoryName].push({
+          modelKey: modelKey,
+          score: bestByModel[modelKey][categoryName]
+        });
+      });
+    });
+
+    var winnersByModel = {};
+    Object.keys(categories).forEach(function (categoryName) {
+      var contenders = categories[categoryName].slice().sort(function (a, b) {
+        return b.score - a.score;
+      });
+      if (!contenders.length) return;
+      var topScore = contenders[0].score;
+      var tied = contenders.filter(function (item) { return item.score === topScore; });
+      if (tied.length !== 1) return;
+      var winner = tied[0].modelKey;
+      if (!winnersByModel[winner]) winnersByModel[winner] = [];
+      winnersByModel[winner].push(categoryName);
+    });
+
+    Object.keys(winnersByModel).forEach(function (modelKey) {
+      var ordered = sortByCategoryOrder(
+        winnersByModel[modelKey].map(function (name) { return { name: name }; }),
+        function (item) { return { name: item.name }; }
+      );
+      winnersByModel[modelKey] = ordered.map(function (item) { return item.name; });
+    });
+
+    return winnersByModel;
+  }
+
+  function buildRankingEntries(runs, categories) {
+    var categoryFirsts = buildCategoryFirsts(runs);
+    var groups = {};
+    (runs || []).forEach(function (run) {
+      var key = run.model_identifier || run.model_name || run.id;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(run);
+    });
+
+    return Object.keys(groups).map(function (key) {
+      var modelRuns = groups[key].slice().sort(compareRunsByScore);
+      var fullRuns = modelRuns.filter(function (run) { return !run.category_filter; });
+      var bestRun = (fullRuns.length ? fullRuns : modelRuns)[0];
+      return {
+        key: key,
+        run: bestRun,
+        totalRuns: modelRuns.length,
+        fullRuns: fullRuns.length,
+        scopeLabel: getRunTypeLabel(bestRun, categories),
+        rankingBasis: fullRuns.length ? 'Best full benchmark run' : 'Best scoped run',
+        uniqueFirsts: categoryFirsts[key] || []
+      };
+    }).sort(function (a, b) {
+      if (a.fullRuns > 0 && b.fullRuns === 0) return -1;
+      if (a.fullRuns === 0 && b.fullRuns > 0) return 1;
+      return compareRunsByScore(a.run, b.run);
+    });
+  }
+
+  function buildRankingFirstsHtml(uniqueFirsts) {
+    if (uniqueFirsts.length) {
+      return [
+        '<div class="ranking-firsts ranking-firsts--active">',
+        '<div class="ranking-firsts-head">',
+        '<div>',
+        '<p class="export-overline">Unique category #1s</p>',
+        '<h4 class="ranking-firsts-title">' + escapeHtml(pluralize(uniqueFirsts.length, 'category record')) + '</h4>',
+        '</div>',
+        '<span class="ranking-firsts-count">' + uniqueFirsts.length + '</span>',
+        '</div>',
+        '<p class="ranking-firsts-copy">Across this model&apos;s tracked runs, no other model matches these category highs.</p>',
+        '<div class="ranking-chip-row">' +
+          uniqueFirsts.map(function (name) {
+            return '<span class="ranking-chip">' + escapeHtml(name) + '</span>';
+          }).join('') +
+        '</div>',
+        '</div>'
+      ].join('');
+    }
+
+    return [
+      '<div class="ranking-firsts">',
+      '<div class="ranking-firsts-head">',
+      '<div>',
+      '<p class="export-overline">Unique category #1s</p>',
+      '<h4 class="ranking-firsts-title">No untied category records yet</h4>',
+      '</div>',
+      '<span class="ranking-firsts-count">0</span>',
+      '</div>',
+      '<p class="ranking-firsts-copy">This model does not currently hold a solo high score in any category.</p>',
+      '<div class="ranking-chip-row"><span class="ranking-chip ranking-chip--muted">Tied highs are excluded from this callout.</span></div>',
+      '</div>'
+    ].join('');
+  }
+
+  function buildRankingItemHtml(entry, index) {
+    var run = entry.run;
+    var modelLabel = run.model_name || run.model_identifier || 'Unknown model';
+    var logo = getVendorLogo(run.model_identifier, run.model_name);
+    var split = splitModelLabel(modelLabel, logo ? logo.alt : '', 140);
+    var vendorLabel = split.vendor && split.vendor.toLowerCase() !== String(split.model || '').toLowerCase()
+      ? split.vendor
+      : '';
+    var identifierLine = run.model_identifier && run.model_identifier !== modelLabel
+      ? '<p class="ranking-model-id">' + escapeHtml(run.model_identifier) + '</p>'
+      : '';
+    var logoMarkup = logo
+      ? '<span class="ranking-model-logo"><img src="' + escapeHtml(basePath + 'logos/' + logo.file) + '" alt="' + escapeHtml(logo.alt) + '" /></span>'
+      : '';
+    var trackedRuns = entry.fullRuns > 0
+      ? entry.totalRuns + ' tracked \u00b7 ' + entry.fullRuns + ' full'
+      : entry.totalRuns + ' tracked';
+
+    return [
+      '<li class="ranking-item" data-rank="' + (index + 1) + '">',
+      '<article class="ranking-card">',
+      '<div class="ranking-card-top">',
+      '<div class="ranking-rank-block">',
+      '<span class="export-overline">Rank</span>',
+      '<strong class="ranking-rank-value">#' + (index + 1) + '</strong>',
+      '</div>',
+      '<div class="ranking-model-block">',
+      logoMarkup,
+      '<div class="ranking-model-copy">',
+      vendorLabel ? '<p class="export-overline ranking-model-eyebrow">' + escapeHtml(vendorLabel) + '</p>' : '',
+      '<h3 class="ranking-model-name"><a class="ranking-link" href="' + escapeHtml(basePath + 'run/' + run.id + '.html') + '">' + escapeHtml(split.model || modelLabel) + '</a></h3>',
+      identifierLine,
+      '</div>',
+      '</div>',
+      '<div class="ranking-score-block">',
+      '<span class="export-overline">Score</span>',
+      '<strong class="ranking-score-value">' + escapeHtml(formatScore(run.final_score || 0) + '%') + '</strong>',
+      '<span class="ranking-score-rating">' + escapeHtml(run.final_rating || '-') + '</span>',
+      '</div>',
+      '</div>',
+      '<div class="export-meta-grid">',
+      buildExportMetaCardHtml('Basis', entry.rankingBasis),
+      buildExportMetaCardHtml('Scope', entry.scopeLabel),
+      buildExportMetaCardHtml('Benchmark', run.benchmark_version ? 'v' + run.benchmark_version : '-'),
+      buildExportMetaCardHtml('Completed', formatDate(run.completed_at)),
+      buildExportMetaCardHtml('Cost', '$' + Number(run.total_cost || 0).toFixed(4)),
+      buildExportMetaCardHtml('Runs tracked', trackedRuns),
+      '</div>',
+      buildRankingFirstsHtml(entry.uniqueFirsts),
+      '</article>',
+      '</li>'
+    ].join('');
+  }
+
   function renderLeaderboard(data) {
     var chartEl = document.getElementById('leaderboard-chart');
     var tableEl = document.getElementById('leaderboard-table');
@@ -596,6 +848,30 @@
     });
 
     tableEl.appendChild(list);
+  }
+
+  function renderRanking(data) {
+    var listEl = document.getElementById('ranking-list');
+    if (!listEl) return;
+
+    clearContainer(listEl);
+
+    var runs = (data && data.runs) ? data.runs.slice() : [];
+    var categories = data && data.categories ? data.categories : [];
+    var entries = buildRankingEntries(runs, categories);
+
+    if (!entries.length) {
+      listEl.innerHTML = '<div class="export-empty">No completed runs yet.</div>';
+      return;
+    }
+
+    var list = document.createElement('ol');
+    list.className = 'ranking-list';
+    list.innerHTML = entries.map(function (entry, index) {
+      return buildRankingItemHtml(entry, index);
+    }).join('');
+
+    listEl.appendChild(list);
   }
 
   function renderCompare(data) {
@@ -1000,7 +1276,10 @@
       });
 
       table.appendChild(tbody);
-      detailCard.appendChild(table);
+      var tableScroll = document.createElement('div');
+      tableScroll.className = 'export-table-scroll';
+      tableScroll.appendChild(table);
+      detailCard.appendChild(tableScroll);
 
       var footnote = document.createElement('small');
       footnote.className = 'category-footnote';
@@ -1119,7 +1398,29 @@
       }
     }
 
+    var recordCategories = sortByCategoryOrder((runData.recordCategories || []).map(function (name) {
+      return { name: name };
+    }), function (item) {
+      return { name: item.name };
+    }).map(function (item) {
+      return item.name;
+    });
+    var recordSet = {};
+    recordCategories.forEach(function (name) {
+      recordSet[name] = true;
+    });
+    var scoreText = typeof run.final_score === 'number'
+      ? run.final_score.toFixed(2) + '%'
+      : '-';
+
     clearContainer(summary);
+    summary.className = 'card run-summary-card';
+
+    var summaryTop = document.createElement('div');
+    summaryTop.className = 'run-summary-top';
+
+    var summaryCopy = document.createElement('div');
+    summaryCopy.className = 'run-summary-copy';
     var badge = document.createElement('span');
     badge.className = 'badge';
     if (run.status === 'completed') {
@@ -1131,10 +1432,9 @@
     } else {
       badge.textContent = 'Live SM Bench';
     }
-    summary.appendChild(badge);
+    summaryCopy.appendChild(badge);
 
     var title = document.createElement('h2');
-    title.style.marginTop = '8px';
     title.className = 'export-run-title';
     if (logo) {
       var img = document.createElement('img');
@@ -1146,28 +1446,70 @@
     var titleText = document.createElement('span');
     titleText.textContent = modelLabel;
     title.appendChild(titleText);
-    summary.appendChild(title);
+    summaryCopy.appendChild(title);
 
     var statusLine = document.createElement('p');
-    statusLine.innerHTML = 'Status: <strong>' + (run.status || 'completed') + '</strong> | ' + completedTests + '/' + totalTests + ' tests complete';
-    summary.appendChild(statusLine);
+    statusLine.className = 'run-summary-status';
+    statusLine.textContent =
+      (run.status || 'completed') +
+      ' \u00b7 ' +
+      completedTests +
+      '/' +
+      totalTests +
+      ' responses \u00b7 ' +
+      judgedTests +
+      '/' +
+      totalTests +
+      ' judged';
+    summaryCopy.appendChild(statusLine);
 
-    var judgedLine = document.createElement('p');
-    judgedLine.textContent = 'Judged: ' + judgedTests + '/' + totalTests;
-    summary.appendChild(judgedLine);
-
+    var summarySub = document.createElement('p');
+    summarySub.className = 'run-summary-status';
+    var summaryParts = [];
     if (run.benchmark_version && run.benchmark_version.version) {
-      var versionLine = document.createElement('p');
-      versionLine.textContent = 'SM Bench version: ' + run.benchmark_version.version;
-      summary.appendChild(versionLine);
+      summaryParts.push('SM Bench v' + run.benchmark_version.version);
     }
+    summaryParts.push(scopeLabel);
+    if (formatDate(run.completed_at || run.started_at) !== '-') {
+      summaryParts.push('Completed ' + formatDate(run.completed_at || run.started_at));
+    }
+    summarySub.textContent = summaryParts.join(' \u00b7 ');
+    summaryCopy.appendChild(summarySub);
+    summaryTop.appendChild(summaryCopy);
 
-    var scopeLine = document.createElement('p');
-    scopeLine.textContent = 'Scope: ' + scopeLabel;
-    summary.appendChild(scopeLine);
+    var summaryScore = document.createElement('div');
+    summaryScore.className = 'run-summary-scorecard';
+    var scoreLabel = document.createElement('span');
+    scoreLabel.className = 'export-overline';
+    scoreLabel.textContent = 'SM Bench score';
+    var scoreValue = document.createElement('strong');
+    scoreValue.className = 'run-summary-score';
+    scoreValue.textContent = scoreText;
+    var scoreMeta = document.createElement('span');
+    scoreMeta.className = 'run-summary-score-meta';
+    scoreMeta.textContent = 'Rating ' + (run.final_rating || '-');
+    summaryScore.appendChild(scoreLabel);
+    summaryScore.appendChild(scoreValue);
+    summaryScore.appendChild(scoreMeta);
+    summaryTop.appendChild(summaryScore);
+
+    summary.appendChild(summaryTop);
+
+    var summaryMetaGrid = document.createElement('div');
+    summaryMetaGrid.className = 'export-meta-grid';
+    appendExportMetaCard(summaryMetaGrid, 'Status', run.status || 'completed');
+    appendExportMetaCard(summaryMetaGrid, 'Judged', judgedTests + '/' + totalTests);
+    appendExportMetaCard(summaryMetaGrid, 'Scope', scopeLabel);
+    if (run.benchmark_version && run.benchmark_version.version) {
+      appendExportMetaCard(summaryMetaGrid, 'Benchmark', 'v' + run.benchmark_version.version);
+    }
+    if (formatDate(run.completed_at || run.started_at) !== '-') {
+      appendExportMetaCard(summaryMetaGrid, 'Completed', formatDate(run.completed_at || run.started_at));
+    }
+    summary.appendChild(summaryMetaGrid);
 
     var progressWrap = document.createElement('div');
-    progressWrap.className = 'progress';
+    progressWrap.className = 'progress run-summary-progress';
     var progressBar = document.createElement('span');
     progressBar.style.width = progress + '%';
     progressWrap.appendChild(progressBar);
@@ -1228,6 +1570,7 @@
     heroMain.className = 'results-hero-main';
 
     var heroLeft = document.createElement('div');
+    heroLeft.className = 'results-hero-copy';
     var heroBadge = document.createElement('span');
     heroBadge.className = 'badge';
     heroBadge.textContent = 'SM Bench Score';
@@ -1267,6 +1610,26 @@
     heroMain.appendChild(heroStats);
     heroCard.appendChild(heroMain);
     resultsStack.appendChild(heroCard);
+
+    if (recordCategories.length) {
+      var recordCard = document.createElement('div');
+      recordCard.className = 'card run-record-card';
+      var recordBadge = document.createElement('span');
+      recordBadge.className = 'badge';
+      recordBadge.textContent = 'Category records';
+      recordCard.appendChild(recordBadge);
+      var recordTitle = document.createElement('h3');
+      recordTitle.className = 'run-record-title';
+      recordTitle.textContent = 'Unique category #1s in this run';
+      recordCard.appendChild(recordTitle);
+      var recordLead = document.createElement('p');
+      recordLead.className = 'run-record-lead';
+      recordLead.textContent =
+        'No other model matches this run in ' + pluralize(recordCategories.length, 'category') + '.';
+      recordCard.appendChild(recordLead);
+      appendRankingChips(recordCard, recordCategories);
+      resultsStack.appendChild(recordCard);
+    }
 
     var overviewSection = document.createElement('div');
     overviewSection.className = 'section';
@@ -1308,6 +1671,7 @@
     var scoreCard = document.createElement('div');
     scoreCard.className = 'card';
     var scoreChart = document.createElement('div');
+    scoreChart.className = 'export-chart-scroll';
     var scoreData = sortedCategoryScores.map(function (item) {
       var label = isOverfitName(item.categoryName) ? item.categoryName + '*' : item.categoryName;
       return { label: label, score: item.score };
@@ -1318,6 +1682,7 @@
     var passCard = document.createElement('div');
     passCard.className = 'card';
     var passChart = document.createElement('div');
+    passChart.className = 'export-chart-scroll';
     var passData = sortedCategoryScores.map(function (item) {
       var label = isOverfitName(item.categoryName) ? item.categoryName + '*' : item.categoryName;
       return { label: label, counts: item.counts || { pass: 0, partial: 0, fail: 0 } };
@@ -1348,7 +1713,18 @@
     categoryDetails.forEach(function (detail) {
       var row = document.createElement('tr');
       var nameCell = document.createElement('td');
-      nameCell.textContent = isOverfitName(detail.name, detail.slug) ? detail.name + '*' : detail.name;
+      var nameWrap = document.createElement('div');
+      nameWrap.className = 'category-name-wrap';
+      var nameText = document.createElement('span');
+      nameText.textContent = isOverfitName(detail.name, detail.slug) ? detail.name + '*' : detail.name;
+      nameWrap.appendChild(nameText);
+      if (recordSet[detail.name]) {
+        var recordPill = document.createElement('span');
+        recordPill.className = 'mini-pill ranking-record-pill';
+        recordPill.textContent = 'Unique #1';
+        nameWrap.appendChild(recordPill);
+      }
+      nameCell.appendChild(nameWrap);
       row.appendChild(nameCell);
 
       var scoreCell = document.createElement('td');
@@ -1386,7 +1762,10 @@
     detailTable.appendChild(detailBody);
     var detailCard = document.createElement('div');
     detailCard.className = 'card';
-    detailCard.appendChild(detailTable);
+    var detailTableScroll = document.createElement('div');
+    detailTableScroll.className = 'export-table-scroll';
+    detailTableScroll.appendChild(detailTable);
+    detailCard.appendChild(detailTableScroll);
     var footnote = document.createElement('small');
     footnote.className = 'category-footnote';
     footnote.textContent = '* Overfit is weighted 2x in the overall score.';
@@ -1443,6 +1822,7 @@
       var summary = document.createElement('summary');
       summary.className = 'category-summary';
       var summaryLeft = document.createElement('div');
+      summaryLeft.className = 'category-summary-left';
       var summaryTitle = document.createElement('strong');
       summaryTitle.textContent = name;
       summaryLeft.appendChild(summaryTitle);
@@ -1451,6 +1831,8 @@
       summarySub.textContent = items.length + ' cases';
       summaryLeft.appendChild(summarySub);
 
+      var summaryRight = document.createElement('div');
+      summaryRight.className = 'category-summary-right';
       var summaryCounts = document.createElement('div');
       summaryCounts.className = 'category-counts';
       summaryCounts.innerHTML =
@@ -1458,9 +1840,10 @@
         '<span class="tag partial tag-fixed">Partial ' + counts.partial + '</span>' +
         '<span class="tag fail tag-fixed">Fail ' + counts.fail + '</span>' +
         '<span class="tag tag-fixed">Pending ' + counts.pending + '</span>';
+      summaryRight.appendChild(summaryCounts);
 
       summary.appendChild(summaryLeft);
-      summary.appendChild(summaryCounts);
+      summary.appendChild(summaryRight);
       details.appendChild(summary);
 
       var body = document.createElement('div');
@@ -1482,19 +1865,26 @@
           var caseSummary = document.createElement('summary');
           caseSummary.className = 'case-summary';
           var indexSpan = document.createElement('span');
+          indexSpan.className = 'case-index';
           indexSpan.textContent = (i + 1) + '.';
           var difficultySpan = document.createElement('span');
-          difficultySpan.style.textTransform = 'uppercase';
-          difficultySpan.style.fontSize = '12px';
+          difficultySpan.className = 'case-difficulty';
           difficultySpan.textContent = result.test_case.difficulty;
+          var previewSpan = document.createElement('span');
+          previewSpan.className = 'case-preview';
+          previewSpan.textContent = previewCasePrompt(result.test_case.prompt);
+          var actionsWrap = document.createElement('div');
+          actionsWrap.className = 'case-actions';
           var tagSpan = document.createElement('span');
           var failNr = result.pass_fail === 'fail' && !String(result.model_response || '').trim();
           tagSpan.className = 'tag tag-fixed ' + (result.pass_fail || 'partial');
           tagSpan.textContent = failNr ? 'fail-nr' : (result.pass_fail || 'pending');
+          actionsWrap.appendChild(tagSpan);
 
           caseSummary.appendChild(indexSpan);
           caseSummary.appendChild(difficultySpan);
-          caseSummary.appendChild(tagSpan);
+          caseSummary.appendChild(previewSpan);
+          caseSummary.appendChild(actionsWrap);
 
           caseDetails.appendChild(caseSummary);
 
@@ -1608,6 +1998,11 @@
       fetchJson(dataBase + 'runs.json').then(renderLeaderboard).catch(function () {
         var chartEl = document.getElementById('leaderboard-chart');
         if (chartEl) chartEl.innerHTML = '<div class="export-empty">Unable to load data.</div>';
+      });
+    } else if (page === 'ranking') {
+      fetchJson(dataBase + 'runs.json').then(renderRanking).catch(function () {
+        var listEl = document.getElementById('ranking-list');
+        if (listEl) listEl.innerHTML = '<div class="export-empty">Unable to load data.</div>';
       });
     } else if (page === 'compare') {
       fetchJson(dataBase + 'runs.json').then(renderCompare).catch(function () {
