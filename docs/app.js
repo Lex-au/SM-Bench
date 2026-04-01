@@ -752,102 +752,132 @@
   function renderLeaderboard(data) {
     var chartEl = document.getElementById('leaderboard-chart');
     var tableEl = document.getElementById('leaderboard-table');
+    var searchEl = document.getElementById('leaderboard-search');
+    var countEl = document.getElementById('leaderboard-count');
     if (!chartEl || !tableEl) return;
 
     var runs = (data && data.runs) ? data.runs.slice() : [];
+    var searchQuery = '';
     runs.sort(function (a, b) {
       var aScore = a.final_score || 0;
       var bScore = b.final_score || 0;
       return bScore - aScore;
     });
 
-    var chartData = runs.slice(0, 16).map(function (run) {
-      return {
-        id: run.id,
-        label: run.model_name || run.model_identifier,
-        modelIdentifier: run.model_identifier,
-        modelName: run.model_name,
-        score: run.final_score || 0
-      };
-    });
-
-    renderScoreChart(chartEl, chartData, {
-      labelMode: 'model',
-      showLogo: true,
-      linkBase: basePath + 'run/'
-    });
-
-    clearContainer(tableEl);
-    if (!runs.length) {
-      tableEl.innerHTML = '<div class="export-empty">No completed runs yet.</div>';
-      return;
+    function matchesSearch(run) {
+      if (!searchQuery) return true;
+      var haystack = [
+        run.model_name || '',
+        run.model_identifier || '',
+        run.final_rating || '',
+        run.benchmark_version || ''
+      ].join(' ').toLowerCase();
+      return haystack.indexOf(searchQuery) !== -1;
     }
 
-    var list = document.createElement('div');
-    list.className = 'compare-run-list leaderboard-run-list';
-
-    runs.forEach(function (run) {
-      var item = document.createElement('a');
-      item.href = basePath + 'run/' + run.id + '.html';
-      item.className = 'compare-run-item leaderboard-run-item';
-
-      var main = document.createElement('div');
-      main.className = 'compare-run-main';
-
-      var title = document.createElement('div');
-      title.className = 'compare-run-title';
-      var logo = getVendorLogo(run.model_identifier, run.model_name);
-      if (logo) {
-        var img = document.createElement('img');
-        img.className = 'vendor-logo';
-        img.src = basePath + 'logos/' + logo.file;
-        img.alt = logo.alt;
-        img.width = 18;
-        img.height = 18;
-        title.appendChild(img);
-      }
-      var titleText = document.createElement('span');
-      titleText.textContent = run.model_name || run.model_identifier;
-      title.appendChild(titleText);
-      main.appendChild(title);
-
-      var meta = document.createElement('div');
-      meta.className = 'compare-run-meta';
-      var metaParts = [
-        'v' + (run.benchmark_version || '-'),
-        formatDate(run.completed_at),
-        '$' + Number(run.total_cost || 0).toFixed(4)
-      ];
-      metaParts.forEach(function (part, index) {
-        if (index > 0) {
-          var dot = document.createElement('span');
-          dot.textContent = '\u00b7';
-          dot.setAttribute('aria-hidden', 'true');
-          meta.appendChild(dot);
-        }
-        var span = document.createElement('span');
-        span.textContent = part;
-        meta.appendChild(span);
+    function renderBoard() {
+      var filtered = runs.filter(matchesSearch);
+      var chartData = filtered.slice(0, 16).map(function (run) {
+        return {
+          id: run.id,
+          label: run.model_name || run.model_identifier,
+          modelIdentifier: run.model_identifier,
+          modelName: run.model_name,
+          score: run.final_score || 0
+        };
       });
-      main.appendChild(meta);
 
-      var scoreWrap = document.createElement('div');
-      scoreWrap.className = 'compare-run-score';
-      var scorePill = document.createElement('span');
-      scorePill.className = 'compare-score-pill';
-      scorePill.textContent = formatScore(run.final_score || 0) + '%';
-      var rating = document.createElement('small');
-      rating.className = 'compare-score-rating';
-      rating.textContent = run.final_rating || '-';
-      scoreWrap.appendChild(scorePill);
-      scoreWrap.appendChild(rating);
+      renderScoreChart(chartEl, chartData, {
+        labelMode: 'model',
+        showLogo: true,
+        linkBase: basePath + 'run/'
+      });
 
-      item.appendChild(main);
-      item.appendChild(scoreWrap);
-      list.appendChild(item);
-    });
+      clearContainer(tableEl);
+      if (countEl) {
+        countEl.textContent = filtered.length + ' of ' + runs.length + ' runs';
+      }
 
-    tableEl.appendChild(list);
+      if (!filtered.length) {
+        tableEl.innerHTML = '<div class="export-empty">No runs match this search.</div>';
+        return;
+      }
+
+      var list = document.createElement('div');
+      list.className = 'compare-run-list leaderboard-run-list';
+
+      filtered.forEach(function (run) {
+        var item = document.createElement('a');
+        item.href = basePath + 'run/' + run.id + '.html';
+        item.className = 'compare-run-item leaderboard-run-item';
+
+        var main = document.createElement('div');
+        main.className = 'compare-run-main';
+
+        var title = document.createElement('div');
+        title.className = 'compare-run-title';
+        var logo = getVendorLogo(run.model_identifier, run.model_name);
+        if (logo) {
+          var img = document.createElement('img');
+          img.className = 'vendor-logo';
+          img.src = basePath + 'logos/' + logo.file;
+          img.alt = logo.alt;
+          img.width = 18;
+          img.height = 18;
+          title.appendChild(img);
+        }
+        var titleText = document.createElement('span');
+        titleText.textContent = run.model_name || run.model_identifier;
+        title.appendChild(titleText);
+        main.appendChild(title);
+
+        var meta = document.createElement('div');
+        meta.className = 'compare-run-meta';
+        var metaParts = [
+          'v' + (run.benchmark_version || '-'),
+          formatDate(run.completed_at),
+          '$' + Number(run.total_cost || 0).toFixed(4)
+        ];
+        metaParts.forEach(function (part, index) {
+          if (index > 0) {
+            var dot = document.createElement('span');
+            dot.textContent = '\u00b7';
+            dot.setAttribute('aria-hidden', 'true');
+            meta.appendChild(dot);
+          }
+          var span = document.createElement('span');
+          span.textContent = part;
+          meta.appendChild(span);
+        });
+        main.appendChild(meta);
+
+        var scoreWrap = document.createElement('div');
+        scoreWrap.className = 'compare-run-score';
+        var scorePill = document.createElement('span');
+        scorePill.className = 'compare-score-pill';
+        scorePill.textContent = formatScore(run.final_score || 0) + '%';
+        var rating = document.createElement('small');
+        rating.className = 'compare-score-rating';
+        rating.textContent = run.final_rating || '-';
+        scoreWrap.appendChild(scorePill);
+        scoreWrap.appendChild(rating);
+
+        item.appendChild(main);
+        item.appendChild(scoreWrap);
+        list.appendChild(item);
+      });
+
+      tableEl.appendChild(list);
+    }
+
+    if (searchEl) {
+      searchEl.addEventListener('input', function (event) {
+        searchQuery = String(event.target.value || '').trim().toLowerCase();
+        renderBoard();
+      });
+    }
+
+    renderBoard();
   }
 
   function renderRanking(data) {
@@ -878,6 +908,9 @@
     var listEl = document.getElementById('compare-list');
     var contentEl = document.getElementById('compare-content');
     var searchEl = document.getElementById('compare-search');
+    var selectAllEl = document.getElementById('compare-select-all');
+    var clearAllEl = document.getElementById('compare-clear-all');
+    var selectionStatusEl = document.getElementById('compare-selection-status');
     if (!listEl || !contentEl) return;
 
     var runs = (data && data.runs) ? data.runs.slice() : [];
@@ -898,6 +931,27 @@
       if (!searchQuery) return true;
       var haystack = (run.model_name || '') + ' ' + (run.model_identifier || '');
       return haystack.toLowerCase().indexOf(searchQuery) !== -1;
+    }
+
+    function getFilteredRuns() {
+      return runs.filter(matchesSearch);
+    }
+
+    function updateCompareControls() {
+      var filtered = getFilteredRuns();
+      var selectedIds = Object.keys(selected);
+      var selectedShown = filtered.filter(function (run) { return selected[run.id]; }).length;
+
+      if (selectionStatusEl) {
+        selectionStatusEl.textContent =
+          selectedIds.length + ' selected' + ' | ' + filtered.length + ' shown';
+      }
+      if (selectAllEl) {
+        selectAllEl.disabled = !filtered.length || selectedShown === filtered.length;
+      }
+      if (clearAllEl) {
+        clearAllEl.disabled = !selectedIds.length;
+      }
     }
 
     function toggleRun(id) {
@@ -970,10 +1024,16 @@
 
     function renderRunList() {
       clearContainer(listEl);
-      var filtered = runs.filter(matchesSearch);
+      var filtered = getFilteredRuns();
+      if (!filtered.length) {
+        listEl.innerHTML = '<div class="export-empty">No runs match this search.</div>';
+        updateCompareControls();
+        return;
+      }
       filtered.forEach(function (run) {
         listEl.appendChild(buildRunItem(run));
       });
+      updateCompareControls();
     }
 
     function bindOverallSpan(grid, count) {
@@ -1294,6 +1354,25 @@
       searchEl.addEventListener('input', function (event) {
         searchQuery = String(event.target.value || '').trim().toLowerCase();
         renderRunList();
+        renderCompareTable();
+      });
+    }
+
+    if (selectAllEl) {
+      selectAllEl.addEventListener('click', function () {
+        getFilteredRuns().forEach(function (run) {
+          selected[run.id] = true;
+        });
+        renderRunList();
+        renderCompareTable();
+      });
+    }
+
+    if (clearAllEl) {
+      clearAllEl.addEventListener('click', function () {
+        selected = {};
+        renderRunList();
+        renderCompareTable();
       });
     }
 
@@ -1790,202 +1869,339 @@
     }
 
     var grouped = {};
-    var order = [];
     results.forEach(function (result) {
       var name = result.test_case.category.name;
       if (!grouped[name]) {
-        grouped[name] = [];
-        order.push(name);
+        grouped[name] = {
+          name: name,
+          slug: result.test_case.category.slug || null,
+          items: []
+        };
       }
-      grouped[name].push(result);
+      grouped[name].items.push(result);
     });
+
+    var groups = sortByCategoryOrder(
+      Object.keys(grouped).map(function (name) { return grouped[name]; }),
+      function (group) { return { name: group.name, slug: group.slug }; }
+    );
 
     var wrapper = document.createElement('div');
     wrapper.className = 'card';
     wrapper.style.display = 'grid';
     wrapper.style.gap = '14px';
 
-    order.forEach(function (name) {
-      var items = grouped[name];
-      var counts = { pass: 0, fail: 0, partial: 0, pending: 0 };
-      items.forEach(function (item) {
-        if (!item.pass_fail) {
-          counts.pending += 1;
-          return;
+    var toolbar = document.createElement('div');
+    toolbar.className = 'form-actions testcase-filter';
+    toolbar.style.justifyContent = 'space-between';
+
+    var filterWrap = document.createElement('div');
+    filterWrap.style.display = 'flex';
+    filterWrap.style.gap = '8px';
+    filterWrap.style.alignItems = 'center';
+    filterWrap.style.flexWrap = 'wrap';
+
+    var filterLabel = document.createElement('span');
+    filterLabel.className = 'tag';
+    filterLabel.textContent = 'Filter';
+    filterWrap.appendChild(filterLabel);
+
+    var verdictFilter = 'all';
+    var searchQuery = '';
+    var visibleCounts = {};
+    var pageSize = 20;
+    var filterButtons = {};
+
+    [
+      { key: 'all', label: 'All' },
+      { key: 'pass', label: 'Pass' },
+      { key: 'partial', label: 'Partial' },
+      { key: 'fail', label: 'Fail' },
+      { key: 'pending', label: 'Pending' }
+    ].forEach(function (entry) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'button ghost filter-button';
+      button.textContent = entry.label;
+      button.setAttribute('aria-pressed', entry.key === verdictFilter ? 'true' : 'false');
+      button.addEventListener('click', function () {
+        verdictFilter = entry.key;
+        renderGroups();
+      });
+      filterButtons[entry.key] = button;
+      filterWrap.appendChild(button);
+    });
+
+    var searchWrap = document.createElement('div');
+    searchWrap.style.display = 'flex';
+    searchWrap.style.gap = '16px';
+    searchWrap.style.alignItems = 'flex-end';
+    searchWrap.style.flexWrap = 'wrap';
+
+    var searchField = document.createElement('div');
+    searchField.className = 'field';
+    searchField.style.minWidth = '220px';
+    var searchLabel = document.createElement('label');
+    searchLabel.textContent = 'Search';
+    var searchInput = document.createElement('input');
+    searchInput.className = 'input';
+    searchInput.placeholder = 'Search prompt, response, judge...';
+    searchInput.addEventListener('input', function (event) {
+      searchQuery = String(event.target.value || '').trim().toLowerCase();
+      renderGroups();
+    });
+    searchField.appendChild(searchLabel);
+    searchField.appendChild(searchInput);
+    searchWrap.appendChild(searchField);
+
+    toolbar.appendChild(filterWrap);
+    toolbar.appendChild(searchWrap);
+    wrapper.appendChild(toolbar);
+
+    var statusWrap = document.createElement('div');
+    statusWrap.className = 'form-actions';
+    statusWrap.style.marginTop = '8px';
+    var statusText = document.createElement('span');
+    statusWrap.appendChild(statusText);
+    wrapper.appendChild(statusWrap);
+
+    var groupsWrap = document.createElement('div');
+    groupsWrap.style.display = 'grid';
+    groupsWrap.style.gap = '14px';
+    wrapper.appendChild(groupsWrap);
+
+    function matchesFilter(item) {
+      if (verdictFilter === 'all') return true;
+      if (verdictFilter === 'pending') return !item.pass_fail;
+      return item.pass_fail === verdictFilter;
+    }
+
+    function matchesSearch(item) {
+      if (!searchQuery) return true;
+      var haystack = [
+        item.test_case.prompt,
+        item.test_case.expected_behavior,
+        item.test_case.reference_answer || '',
+        item.model_response || '',
+        item.judge_evaluation || '',
+        item.test_case.category.name,
+        item.test_case.difficulty,
+        item.pass_fail || ''
+      ].join(' ').toLowerCase();
+      return haystack.indexOf(searchQuery) !== -1;
+    }
+
+    function visibleFor(name, total) {
+      if (Object.prototype.hasOwnProperty.call(visibleCounts, name)) {
+        return Math.min(visibleCounts[name], total);
+      }
+      return Math.min(pageSize, total);
+    }
+
+    function buildCaseCard(result, displayIndex) {
+      var caseDetails = document.createElement('details');
+      caseDetails.className = 'case-details';
+
+      var caseSummary = document.createElement('summary');
+      caseSummary.className = 'case-summary';
+      var indexSpan = document.createElement('span');
+      indexSpan.className = 'case-index';
+      indexSpan.textContent = displayIndex + '.';
+      var difficultySpan = document.createElement('span');
+      difficultySpan.className = 'case-difficulty';
+      difficultySpan.textContent = result.test_case.difficulty;
+      var previewSpan = document.createElement('span');
+      previewSpan.className = 'case-preview';
+      previewSpan.textContent = previewCasePrompt(result.test_case.prompt);
+      var actionsWrap = document.createElement('div');
+      actionsWrap.className = 'case-actions';
+      var tagSpan = document.createElement('span');
+      var failNr = result.pass_fail === 'fail' && !String(result.model_response || '').trim();
+      tagSpan.className = 'tag tag-fixed ' + (result.pass_fail || 'partial');
+      tagSpan.textContent = failNr ? 'fail-nr' : (result.pass_fail || 'pending');
+      actionsWrap.appendChild(tagSpan);
+
+      caseSummary.appendChild(indexSpan);
+      caseSummary.appendChild(difficultySpan);
+      caseSummary.appendChild(previewSpan);
+      caseSummary.appendChild(actionsWrap);
+      caseDetails.appendChild(caseSummary);
+
+      var bodyWrap = document.createElement('div');
+      bodyWrap.style.marginTop = '8px';
+      bodyWrap.style.display = 'grid';
+      bodyWrap.style.gap = '8px';
+
+      if (modelLabel || result.model_latency_ms || result.judge_latency_ms) {
+        var latencyRow = document.createElement('div');
+        latencyRow.className = 'stat-row';
+        latencyRow.style.marginTop = '0';
+        if (modelLabel) {
+          var modelName = document.createElement('div');
+          modelName.className = 'stat-pill';
+          modelName.textContent = 'Model: ' + modelLabel;
+          latencyRow.appendChild(modelName);
         }
-        counts[item.pass_fail] += 1;
+        if (result.model_latency_ms !== null && result.model_latency_ms !== undefined) {
+          var modelLatency = document.createElement('div');
+          modelLatency.className = 'stat-pill';
+          modelLatency.textContent = 'Model latency: ' + result.model_latency_ms + ' ms';
+          latencyRow.appendChild(modelLatency);
+        }
+        if (result.judge_latency_ms !== null && result.judge_latency_ms !== undefined) {
+          var judgeLatency = document.createElement('div');
+          judgeLatency.className = 'stat-pill';
+          judgeLatency.textContent = 'Judge latency: ' + result.judge_latency_ms + ' ms';
+          latencyRow.appendChild(judgeLatency);
+        }
+        bodyWrap.appendChild(latencyRow);
+      }
+
+      appendMarkdownBlock(
+        bodyWrap,
+        'Prompt:',
+        result.test_case.prompt_html,
+        result.test_case.prompt
+      );
+      appendMarkdownBlock(
+        bodyWrap,
+        'Expected:',
+        result.test_case.expected_behavior_html,
+        result.test_case.expected_behavior
+      );
+      if (result.test_case.reference_answer) {
+        appendMarkdownBlock(
+          bodyWrap,
+          'Reference:',
+          result.test_case.reference_answer_html,
+          result.test_case.reference_answer
+        );
+      }
+      appendMarkdownBlock(
+        bodyWrap,
+        'Response:',
+        result.model_response_html,
+        result.model_response
+      );
+      if (result.judge_evaluation) {
+        appendMarkdownBlock(
+          bodyWrap,
+          'Judge:',
+          result.judge_evaluation_html,
+          result.judge_evaluation
+        );
+      }
+
+      caseDetails.appendChild(bodyWrap);
+      return caseDetails;
+    }
+
+    function renderGroups() {
+      clearContainer(groupsWrap);
+
+      Object.keys(filterButtons).forEach(function (key) {
+        filterButtons[key].setAttribute('aria-pressed', key === verdictFilter ? 'true' : 'false');
       });
 
-      var details = document.createElement('details');
-      details.className = 'category-group';
+      var filteredTotal = 0;
 
-      var summary = document.createElement('summary');
-      summary.className = 'category-summary';
-      var summaryLeft = document.createElement('div');
-      summaryLeft.className = 'category-summary-left';
-      var summaryTitle = document.createElement('strong');
-      summaryTitle.textContent = name;
-      summaryLeft.appendChild(summaryTitle);
-      var summarySub = document.createElement('span');
-      summarySub.className = 'category-sub';
-      summarySub.textContent = items.length + ' cases';
-      summaryLeft.appendChild(summarySub);
-
-      var summaryRight = document.createElement('div');
-      summaryRight.className = 'category-summary-right';
-      var summaryCounts = document.createElement('div');
-      summaryCounts.className = 'category-counts';
-      summaryCounts.innerHTML =
-        '<span class="tag pass tag-fixed">Pass ' + counts.pass + '</span>' +
-        '<span class="tag partial tag-fixed">Partial ' + counts.partial + '</span>' +
-        '<span class="tag fail tag-fixed">Fail ' + counts.fail + '</span>' +
-        '<span class="tag tag-fixed">Pending ' + counts.pending + '</span>';
-      summaryRight.appendChild(summaryCounts);
-
-      summary.appendChild(summaryLeft);
-      summary.appendChild(summaryRight);
-      details.appendChild(summary);
-
-      var body = document.createElement('div');
-      body.className = 'category-body';
-      details.appendChild(body);
-
-      var visible = 0;
-      var pageSize = 20;
-
-      function appendNext(targetCount) {
-        var next = typeof targetCount === 'number'
-          ? Math.min(targetCount, items.length)
-          : Math.min(visible + pageSize, items.length);
-        for (var i = visible; i < next; i += 1) {
-          var result = items[i];
-          var caseDetails = document.createElement('details');
-          caseDetails.className = 'case-details';
-
-          var caseSummary = document.createElement('summary');
-          caseSummary.className = 'case-summary';
-          var indexSpan = document.createElement('span');
-          indexSpan.className = 'case-index';
-          indexSpan.textContent = (i + 1) + '.';
-          var difficultySpan = document.createElement('span');
-          difficultySpan.className = 'case-difficulty';
-          difficultySpan.textContent = result.test_case.difficulty;
-          var previewSpan = document.createElement('span');
-          previewSpan.className = 'case-preview';
-          previewSpan.textContent = previewCasePrompt(result.test_case.prompt);
-          var actionsWrap = document.createElement('div');
-          actionsWrap.className = 'case-actions';
-          var tagSpan = document.createElement('span');
-          var failNr = result.pass_fail === 'fail' && !String(result.model_response || '').trim();
-          tagSpan.className = 'tag tag-fixed ' + (result.pass_fail || 'partial');
-          tagSpan.textContent = failNr ? 'fail-nr' : (result.pass_fail || 'pending');
-          actionsWrap.appendChild(tagSpan);
-
-          caseSummary.appendChild(indexSpan);
-          caseSummary.appendChild(difficultySpan);
-          caseSummary.appendChild(previewSpan);
-          caseSummary.appendChild(actionsWrap);
-
-          caseDetails.appendChild(caseSummary);
-
-          var bodyWrap = document.createElement('div');
-          bodyWrap.style.marginTop = '8px';
-          bodyWrap.style.display = 'grid';
-          bodyWrap.style.gap = '8px';
-
-          if (modelLabel || result.model_latency_ms || result.judge_latency_ms) {
-            var latencyRow = document.createElement('div');
-            latencyRow.className = 'stat-row';
-            latencyRow.style.marginTop = '0';
-            if (modelLabel) {
-              var modelName = document.createElement('div');
-              modelName.className = 'stat-pill';
-              modelName.textContent = 'Model: ' + modelLabel;
-              latencyRow.appendChild(modelName);
-            }
-            if (result.model_latency_ms !== null && result.model_latency_ms !== undefined) {
-              var modelLatency = document.createElement('div');
-              modelLatency.className = 'stat-pill';
-              modelLatency.textContent = 'Model latency: ' + result.model_latency_ms + ' ms';
-              latencyRow.appendChild(modelLatency);
-            }
-            if (result.judge_latency_ms !== null && result.judge_latency_ms !== undefined) {
-              var judgeLatency = document.createElement('div');
-              judgeLatency.className = 'stat-pill';
-              judgeLatency.textContent = 'Judge latency: ' + result.judge_latency_ms + ' ms';
-              latencyRow.appendChild(judgeLatency);
-            }
-            bodyWrap.appendChild(latencyRow);
+      groups.forEach(function (group) {
+        var items = group.items;
+        var counts = { pass: 0, fail: 0, partial: 0, pending: 0 };
+        items.forEach(function (item) {
+          if (!item.pass_fail) {
+            counts.pending += 1;
+            return;
           }
-
-          appendMarkdownBlock(
-            bodyWrap,
-            'Prompt:',
-            result.test_case.prompt_html,
-            result.test_case.prompt
-          );
-          appendMarkdownBlock(
-            bodyWrap,
-            'Expected:',
-            result.test_case.expected_behavior_html,
-            result.test_case.expected_behavior
-          );
-          if (result.test_case.reference_answer) {
-            appendMarkdownBlock(
-              bodyWrap,
-              'Reference:',
-              result.test_case.reference_answer_html,
-              result.test_case.reference_answer
-            );
-          }
-          appendMarkdownBlock(
-            bodyWrap,
-            'Response:',
-            result.model_response_html,
-            result.model_response
-          );
-          if (result.judge_evaluation) {
-            appendMarkdownBlock(
-              bodyWrap,
-              'Judge:',
-              result.judge_evaluation_html,
-              result.judge_evaluation
-            );
-          }
-
-          caseDetails.appendChild(bodyWrap);
-          body.appendChild(caseDetails);
-        }
-        visible = next;
-        if (visible >= items.length && actionWrap) {
-          actionWrap.parentElement.removeChild(actionWrap);
-          actionWrap = null;
-          loadButton = null;
-        }
-      }
-
-      appendNext();
-
-      var loadButton = null;
-      var actionWrap = null;
-      if (items.length > visible) {
-        actionWrap = document.createElement('div');
-        actionWrap.className = 'form-actions';
-        actionWrap.style.marginTop = '8px';
-        loadButton = document.createElement('button');
-        loadButton.className = 'button ghost';
-        loadButton.textContent = 'Load rest';
-        loadButton.addEventListener('click', function (event) {
-          event.preventDefault();
-          event.stopPropagation();
-          appendNext(items.length);
+          counts[item.pass_fail] += 1;
         });
-        actionWrap.appendChild(loadButton);
-        body.appendChild(actionWrap);
-      }
 
-      wrapper.appendChild(details);
-    });
+        var filteredItems = items.filter(function (item) {
+          return matchesFilter(item) && matchesSearch(item);
+        });
+        filteredTotal += filteredItems.length;
+
+        var details = document.createElement('details');
+        details.className = 'category-group';
+
+        var summary = document.createElement('summary');
+        summary.className = 'category-summary';
+        var summaryLeft = document.createElement('div');
+        summaryLeft.className = 'category-summary-left';
+        var summaryTitle = document.createElement('strong');
+        summaryTitle.textContent = group.name;
+        summaryLeft.appendChild(summaryTitle);
+        var summarySub = document.createElement('span');
+        summarySub.className = 'category-sub';
+        summarySub.textContent = items.length + ' cases';
+        summaryLeft.appendChild(summarySub);
+        if (searchQuery && filteredItems.length) {
+          var hitTag = document.createElement('span');
+          hitTag.className = 'tag search-hit';
+          hitTag.textContent = 'Hits ' + filteredItems.length;
+          summaryLeft.appendChild(hitTag);
+        }
+
+        var summaryRight = document.createElement('div');
+        summaryRight.className = 'category-summary-right';
+        var summaryCounts = document.createElement('div');
+        summaryCounts.className = 'category-counts';
+        summaryCounts.innerHTML =
+          '<span class="tag pass tag-fixed">Pass ' + counts.pass + '</span>' +
+          '<span class="tag partial tag-fixed">Partial ' + counts.partial + '</span>' +
+          '<span class="tag fail tag-fixed">Fail ' + counts.fail + '</span>' +
+          '<span class="tag tag-fixed">Pending ' + counts.pending + '</span>';
+        summaryRight.appendChild(summaryCounts);
+
+        summary.appendChild(summaryLeft);
+        summary.appendChild(summaryRight);
+        details.appendChild(summary);
+
+        var body = document.createElement('div');
+        body.className = 'category-body';
+
+        if (!filteredItems.length) {
+          var emptyState = document.createElement('p');
+          emptyState.style.marginTop = '8px';
+          emptyState.textContent = 'No cases match this filter.';
+          body.appendChild(emptyState);
+        } else {
+          var indexMap = {};
+          items.forEach(function (item, index) {
+            indexMap[item.id] = index + 1;
+          });
+          var visible = visibleFor(group.name, filteredItems.length);
+          var shown = filteredItems.slice(0, visible);
+          shown.forEach(function (result) {
+            body.appendChild(buildCaseCard(result, indexMap[result.id] || 0));
+          });
+
+          if (visible < filteredItems.length) {
+            var actionWrap = document.createElement('div');
+            actionWrap.className = 'form-actions';
+            actionWrap.style.marginTop = '8px';
+            var loadButton = document.createElement('button');
+            loadButton.className = 'button ghost';
+            loadButton.textContent = 'Load rest';
+            loadButton.addEventListener('click', function (event) {
+              event.preventDefault();
+              event.stopPropagation();
+              visibleCounts[group.name] = filteredItems.length;
+              renderGroups();
+            });
+            actionWrap.appendChild(loadButton);
+            body.appendChild(actionWrap);
+          }
+        }
+
+        details.appendChild(body);
+        groupsWrap.appendChild(details);
+      });
+
+      statusText.textContent = 'Showing ' + filteredTotal + ' of ' + results.length + ' cases';
+    }
+
+    renderGroups();
 
     container.appendChild(wrapper);
   }

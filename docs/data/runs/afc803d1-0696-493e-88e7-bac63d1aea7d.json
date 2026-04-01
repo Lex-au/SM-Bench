@@ -2,8 +2,8 @@
   "run": {
     "id": "afc803d1-0696-493e-88e7-bac63d1aea7d",
     "status": "completed",
-    "model_name": "xAI: Grok 4.20 Beta",
-    "model_identifier": "x-ai/grok-4.20-beta",
+    "model_name": "xAI: Grok 4.20",
+    "model_identifier": "x-ai/grok-4.20",
     "judge_model_identifier": "google/gemini-3-flash-preview",
     "benchmark_version_id": "6ce2e988-3f44-4710-bf95-14995270fda6",
     "benchmark_version": {

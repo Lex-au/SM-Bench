@@ -28,13 +28,24 @@
         <section class="card">
           <span class="badge">Compare</span>
           <h2 style="margin-top: 8px;">Select runs to compare</h2>
-          <div class="field" style="margin-top: 12px;">
-            <label>Search runs</label>
-            <input
-              id="compare-search"
-              class="input"
-              placeholder="Search by model or vendor..."
-            />
+          <div class="export-toolbar" style="margin-top: 12px;">
+            <div class="field export-toolbar-field">
+              <label for="compare-search">Search runs</label>
+              <input
+                id="compare-search"
+                class="input"
+                placeholder="Search by model or vendor..."
+              />
+            </div>
+            <div class="form-actions export-compare-actions">
+              <button id="compare-select-all" class="button ghost" type="button">
+                Select all shown
+              </button>
+              <button id="compare-clear-all" class="button ghost" type="button">
+                Clear selection
+              </button>
+              <span id="compare-selection-status" class="export-toolbar-status"></span>
+            </div>
           </div>
           <div id="compare-list" class="compare-run-list" style="margin-top: 12px;"></div>
           <div id="compare-content" style="margin-top: 24px;"></div>

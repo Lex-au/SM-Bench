@@ -1511,6 +1511,40 @@ summary::-webkit-details-marker {
   flex-shrink: 0;
 }
 
+.export-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.export-toolbar-field {
+  flex: 1 1 280px;
+  min-width: min(100%, 280px);
+}
+
+.export-toolbar-status {
+  font-size: 13px;
+  color: var(--color-ink-soft);
+  line-height: 1.5;
+}
+
+.export-compare-actions {
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.export-shell .testcase-filter {
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.export-shell .testcase-filter .field {
+  margin: 0;
+}
+
 .export-bar-clickable {
   cursor: pointer;
 }
@@ -2136,6 +2170,17 @@ summary::-webkit-details-marker {
 
   .export-shell .compare-run-score {
     justify-items: start;
+  }
+
+  .export-toolbar,
+  .export-shell .testcase-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .export-toolbar-status,
+  .export-compare-actions {
+    width: 100%;
   }
 
   .export-shell .results-hero-main {

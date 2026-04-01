@@ -2,8 +2,8 @@
   "run": {
     "id": "d03641ed-c1f6-4bb5-9308-2d2810b43a06",
     "status": "completed",
-    "model_name": "Healer Alpha",
-    "model_identifier": "openrouter/healer-alpha",
+    "model_name": "Xiaomi: MiMo-V2-Omni",
+    "model_identifier": "xiaomi/mimo-v2-omni",
     "judge_model_identifier": "google/gemini-3-flash-preview",
     "benchmark_version_id": "6ce2e988-3f44-4710-bf95-14995270fda6",
     "benchmark_version": {
