@@ -53,6 +53,7 @@
     { prefixes: ['google/'], nameIncludes: ['gemini', 'google'], file: 'GoogleGemini.png', alt: 'Google' },
     { prefixes: ['x-ai/'], idIncludes: ['xai', 'x-ai'], nameIncludes: ['xai', 'x-ai', 'grok'], file: 'xAI.png', alt: 'xAI' },
     { prefixes: ['moonshotai/'], nameIncludes: ['moonshot', 'kimi'], file: 'Moonshot.png', alt: 'Moonshot' },
+    { prefixes: ['mistralai/', 'mistral/'], idIncludes: ['mistral', 'mistralai'], nameIncludes: ['mistral', 'ministral'], file: 'Mistral.png', alt: 'Mistral' },
     { prefixes: ['minimax/'], nameIncludes: ['minimax'], file: 'Minimax.png', alt: 'Minimax' },
     { prefixes: ['qwen/'], nameIncludes: ['qwen'], file: 'Qwen.png', alt: 'Qwen' },
     { prefixes: ['deepseek/'], nameIncludes: ['deepseek'], file: 'DeepSeek.png', alt: 'DeepSeek' },
