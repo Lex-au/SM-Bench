@@ -57,6 +57,7 @@
     { prefixes: ['minimax/'], nameIncludes: ['minimax'], file: 'Minimax.png', alt: 'Minimax' },
     { prefixes: ['qwen/'], nameIncludes: ['qwen'], file: 'Qwen.png', alt: 'Qwen' },
     { prefixes: ['deepseek/'], nameIncludes: ['deepseek'], file: 'DeepSeek.png', alt: 'DeepSeek' },
+    { prefixes: ['nvidia/'], idIncludes: ['nvidia', 'nemotron'], nameIncludes: ['nvidia', 'nemotron'], file: 'Nvidia.png', alt: 'NVIDIA' },
     { prefixes: ['arcee-ai/', 'arcee/'], idIncludes: ['arcee'], nameIncludes: ['arcee'], file: 'arcee-ai.png', alt: 'Arcee AI' },
     { prefixes: ['xiaomi/'], idIncludes: ['xiaomi'], nameIncludes: ['xiaomi'], file: 'xiaomi.png', alt: 'Xiaomi' },
     { prefixes: ['zai/'], idIncludes: ['z-ai', 'zai'], nameIncludes: ['z-ai', 'zai'], file: 'zAI.png', alt: 'zAI' }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-03T04:53:48.131Z",
+  "generated_at": "2026-04-08T01:07:17.459Z",
   "runs": [
     {
       "id": "6cae59d2-13ae-4541-85c3-da909cb45de5",
@@ -300,6 +300,108 @@
           "counts": {
             "pass": 67,
             "fail": 33,
+            "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
+      "id": "52636dcb-ccb2-492f-a6d1-039b05326bbc",
+      "model_name": "Z.ai: GLM 5.1",
+      "model_identifier": "z-ai/glm-5.1",
+      "final_score": 84.06,
+      "final_rating": "B",
+      "completed_at": "2026-04-07T22:58:14.191Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 4.2010721,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 73.88,
+          "weight": 1,
+          "counts": {
+            "pass": 75,
+            "fail": 24,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 62.19,
+          "weight": 1,
+          "counts": {
+            "pass": 60,
+            "fail": 39,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 100,
+          "weight": 1,
+          "counts": {
+            "pass": 100,
+            "fail": 0,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 97.76,
+          "weight": 1,
+          "counts": {
+            "pass": 98,
+            "fail": 2,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 88.48,
+          "weight": 1,
+          "counts": {
+            "pass": 91,
+            "fail": 9,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 90.77,
+          "weight": 1,
+          "counts": {
+            "pass": 91,
+            "fail": 7,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 88.29,
+          "weight": 1,
+          "counts": {
+            "pass": 89,
+            "fail": 11,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 77.6,
+          "weight": 2,
+          "counts": {
+            "pass": 80,
+            "fail": 20,
             "partial": 0
           }
         }
@@ -3062,6 +3164,108 @@
       "total_tests": 800
     },
     {
+      "id": "d5467bd7-6105-4cc0-95c7-b24f6245d4cd",
+      "model_name": "NVIDIA: Nemotron 3 Nano 30B A3B",
+      "model_identifier": "nvidia/nemotron-3-nano-30b-a3b",
+      "final_score": 60.56,
+      "final_rating": "D",
+      "completed_at": "2026-04-07T03:12:39.440Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 0.7715534500000001,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 53.93,
+          "weight": 1,
+          "counts": {
+            "pass": 58,
+            "fail": 42,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 4.98,
+          "weight": 1,
+          "counts": {
+            "pass": 5,
+            "fail": 95,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 88.3,
+          "weight": 1,
+          "counts": {
+            "pass": 90,
+            "fail": 9,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 92.38,
+          "weight": 1,
+          "counts": {
+            "pass": 94,
+            "fail": 6,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 75.13,
+          "weight": 1,
+          "counts": {
+            "pass": 77,
+            "fail": 22,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 71.43,
+          "weight": 1,
+          "counts": {
+            "pass": 75,
+            "fail": 25,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 73.66,
+          "weight": 1,
+          "counts": {
+            "pass": 76,
+            "fail": 23,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 42.62,
+          "weight": 2,
+          "counts": {
+            "pass": 41,
+            "fail": 59,
+            "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
       "id": "19b024a5-bd73-4c94-9cc4-076836c559fb",
       "model_name": "Qwen: Qwen3.5 397B A17B",
       "model_identifier": "qwen/qwen3.5-397b-a17b",
@@ -3463,6 +3667,108 @@
             "pass": 29,
             "fail": 71,
             "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
+      "id": "13c71608-8497-4443-8637-907722942301",
+      "model_name": "NVIDIA: Nemotron 3 Super",
+      "model_identifier": "nvidia/nemotron-3-super-120b-a12b",
+      "final_score": 56.15,
+      "final_rating": "F",
+      "completed_at": "2026-04-07T02:49:05.211Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 0.8745763,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 52.53,
+          "weight": 1,
+          "counts": {
+            "pass": 57,
+            "fail": 41,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 6.97,
+          "weight": 1,
+          "counts": {
+            "pass": 7,
+            "fail": 92,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 93.35,
+          "weight": 1,
+          "counts": {
+            "pass": 93,
+            "fail": 6,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 83.63,
+          "weight": 1,
+          "counts": {
+            "pass": 85,
+            "fail": 14,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 90.58,
+          "weight": 1,
+          "counts": {
+            "pass": 91,
+            "fail": 9,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 63.39,
+          "weight": 1,
+          "counts": {
+            "pass": 63,
+            "fail": 33,
+            "partial": 4
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 71.22,
+          "weight": 1,
+          "counts": {
+            "pass": 72,
+            "fail": 28,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 21.86,
+          "weight": 2,
+          "counts": {
+            "pass": 21,
+            "fail": 78,
+            "partial": 1
           }
         }
       ],
