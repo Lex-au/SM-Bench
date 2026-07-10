@@ -1,10 +1,13 @@
 ﻿<!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>🧠🔨 Safetymaxxed Bench - Compare</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <title>SM Bench — Compare</title>
+    <meta name="description" content="Compare AI model safety benchmark runs side by side." />
+    <meta name="theme-color" content="#080c12" />
+    <link rel="icon" href="./logos/SMBench.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=12" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -14,21 +17,33 @@
   </head>
   <body data-page="compare" class="export-shell">
     <header class="site-header">
-      <nav class="navbar">
-        <a href="./index.html" class="brand">🧠🔨 Safetymaxxed Bench</a>
-        <div class="nav-links">
+      <nav class="navbar" aria-label="Primary navigation">
+        <a href="./index.html" class="brand" aria-label="SM Bench home">
+          <img class="brand-mark" src="./logos/SMBench.svg" alt="" />
+          <span class="brand-copy"><strong>SM</strong> Bench</span>
+        </a>
+        <div class="nav-links" aria-label="Benchmark pages">
           <a href="./index.html">Leaderboard</a>
           <a href="./ranking.html">Ranking</a>
-          <a href="./compare.html">Compare</a>
+          <a href="./compare.html" aria-current="page">Compare</a>
+          <a href="./about.html">About</a>
         </div>
+        <button class="theme-toggle" type="button" aria-label="Use light theme" aria-pressed="true">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z" />
+          </svg>
+        </button>
       </nav>
     </header>
     <main>
       <div class="container">
         <section class="card">
-          <span class="badge">Compare</span>
-          <h2 style="margin-top: 8px;">Select runs to compare</h2>
-          <div class="export-toolbar" style="margin-top: 12px;">
+          <div class="export-page-heading">
+            <span class="badge">Comparison lab</span>
+            <h1>Compare model runs</h1>
+            <p>Select runs to inspect score, category, cost, and verdict differences.</p>
+          </div>
+          <div class="export-toolbar">
             <div class="field export-toolbar-field">
               <label for="compare-search">Search runs</label>
               <input
@@ -47,11 +62,11 @@
               <span id="compare-selection-status" class="export-toolbar-status"></span>
             </div>
           </div>
-          <div id="compare-list" class="compare-run-list" style="margin-top: 12px;"></div>
-          <div id="compare-content" style="margin-top: 24px;"></div>
+          <div id="compare-list" class="compare-run-list"></div>
+          <div id="compare-content"></div>
         </section>
       </div>
     </main>
-    <script src="./app.js"></script>
+    <script src="./app.js?v=12"></script>
   </body>
 </html>

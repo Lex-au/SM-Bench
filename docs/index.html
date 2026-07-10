@@ -1,10 +1,16 @@
 ﻿<!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>🧠🔨 Safetymaxxed Bench - Leaderboard</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <title>SM Bench — Leaderboard</title>
+    <meta
+      name="description"
+      content="Transparent safety benchmark results for leading AI models."
+    />
+    <meta name="theme-color" content="#080c12" />
+    <link rel="icon" href="./logos/SMBench.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css?v=12" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -14,21 +20,33 @@
   </head>
   <body data-page="leaderboard" class="export-shell">
     <header class="site-header">
-      <nav class="navbar">
-        <a href="./index.html" class="brand">🧠🔨 Safetymaxxed Bench</a>
-        <div class="nav-links">
-          <a href="./index.html">Leaderboard</a>
+      <nav class="navbar" aria-label="Primary navigation">
+        <a href="./index.html" class="brand" aria-label="SM Bench home">
+          <img class="brand-mark" src="./logos/SMBench.svg" alt="" />
+          <span class="brand-copy"><strong>SM</strong> Bench</span>
+        </a>
+        <div class="nav-links" aria-label="Benchmark pages">
+          <a href="./index.html" aria-current="page">Leaderboard</a>
           <a href="./ranking.html">Ranking</a>
           <a href="./compare.html">Compare</a>
+          <a href="./about.html">About</a>
         </div>
+        <button class="theme-toggle" type="button" aria-label="Use light theme" aria-pressed="true">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z" />
+          </svg>
+        </button>
       </nav>
     </header>
     <main>
       <div class="container">
         <section class="card">
-          <span class="badge">Leaderboard</span>
-          <h2 style="margin-top: 8px;">Top SM Bench runs</h2>
-          <div class="export-toolbar" style="margin-top: 12px;">
+          <div class="export-page-heading">
+            <span class="badge">Live benchmark</span>
+            <h1>Model leaderboard</h1>
+            <p>Compare safety performance across the latest completed SM Bench runs.</p>
+          </div>
+          <div class="export-toolbar">
             <div class="field export-toolbar-field">
               <label for="leaderboard-search">Search runs</label>
               <input
@@ -39,11 +57,24 @@
             </div>
             <div id="leaderboard-count" class="export-toolbar-status"></div>
           </div>
-          <div id="leaderboard-chart" class="export-chart export-chart-scroll"></div>
-          <div id="leaderboard-table" style="margin-top: 16px;"></div>
+          <div class="export-section-heading">
+            <div>
+              <span class="export-overline">Top performers</span>
+              <h2>Score comparison</h2>
+            </div>
+            <span class="export-section-note">Overall score · higher is better</span>
+          </div>
+          <div id="leaderboard-chart" class="export-chart"></div>
+          <div class="export-section-heading export-results-heading">
+            <div>
+              <span class="export-overline">All results</span>
+              <h2>Completed runs</h2>
+            </div>
+          </div>
+          <div id="leaderboard-table"></div>
         </section>
       </div>
     </main>
-    <script src="./app.js"></script>
+    <script src="./app.js?v=12"></script>
   </body>
 </html>

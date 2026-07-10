@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">SM Bench</title>
+  <desc id="desc">A shield with an ascending benchmark line</desc>
+  <defs>
+    <linearGradient id="shield" x1="12" y1="8" x2="52" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#14232d"/>
+      <stop offset="1" stop-color="#0a1118"/>
+    </linearGradient>
+    <linearGradient id="signal" x1="18" y1="40" x2="47" y2="20" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#65e6c4"/>
+      <stop offset="1" stop-color="#8ea7ff"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="18" fill="#080d12" stroke="#273541" stroke-width="2"/>
+  <path d="M32 9.5 50 16v14.2C50 42 42.7 50.8 32 55 21.3 50.8 14 42 14 30.2V16l18-6.5Z" fill="url(#shield)" stroke="#38505e" stroke-width="1.5"/>
+  <path d="m19 39 8.2-8.4 6.4 5.8L46 22" fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+  <circle cx="46" cy="22" r="3.5" fill="#9aacff" stroke="#e7ebff" stroke-width="1.5"/>
+</svg>

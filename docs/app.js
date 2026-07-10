@@ -3,17 +3,48 @@
   var isRunPage = window.location.pathname.indexOf('/run/') !== -1;
   var basePath = isRunPage ? '../' : './';
   var dataBase = basePath + 'data/';
-  var themeKey = 'nobs-theme';
+  var themeKey = 'sm-bench-theme';
 
   function setTheme(theme) {
-    document.documentElement.removeAttribute('data-theme');
+    var nextTheme = theme === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    var themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeMeta) {
+      themeMeta.setAttribute('content', nextTheme === 'dark' ? '#080c12' : '#f4f7f8');
+    }
+    var toggles = document.querySelectorAll('.theme-toggle');
+    for (var i = 0; i < toggles.length; i += 1) {
+      toggles[i].setAttribute('aria-pressed', nextTheme === 'dark' ? 'true' : 'false');
+      toggles[i].setAttribute('aria-label', nextTheme === 'dark' ? 'Use light theme' : 'Use dark theme');
+      toggles[i].setAttribute('title', nextTheme === 'dark' ? 'Use light theme' : 'Use dark theme');
+    }
+    updateThemeLogos();
   }
 
   function initTheme() {
-    setTheme('light');
+    var savedTheme = null;
+    try {
+      savedTheme = window.localStorage.getItem(themeKey);
+    } catch (error) {
+      savedTheme = null;
+    }
+    setTheme(savedTheme || 'dark');
   }
 
-  function bindThemeToggle() {}
+  function bindThemeToggle() {
+    var toggles = document.querySelectorAll('.theme-toggle');
+    for (var i = 0; i < toggles.length; i += 1) {
+      toggles[i].addEventListener('click', function () {
+        var nextTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        try {
+          window.localStorage.setItem(themeKey, nextTheme);
+        } catch (error) {
+          // The theme still works for this page view when storage is unavailable.
+        }
+        setTheme(nextTheme);
+      });
+    }
+  }
 
   function fetchJson(path) {
     return fetch(path).then(function (res) {
@@ -32,6 +63,12 @@
   function formatScore(score) {
     var value = Number(score) || 0;
     return value.toFixed(1);
+  }
+
+  function formatPercentChange(value) {
+    var numeric = Number(value) || 0;
+    if (Math.abs(numeric) < 0.05) return '0.0%';
+    return (numeric > 0 ? '+' : '\u2212') + Math.abs(numeric).toFixed(1) + '%';
   }
 
   function scoreToWidth(score) {
@@ -88,6 +125,31 @@
       }
     }
     return null;
+  }
+
+  function getThemeLogoFile(file) {
+    var darkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (file === 'OpenAI.svg' && darkMode) return 'OpenAIDark.svg';
+    return file;
+  }
+
+  function setLogoSource(img, file) {
+    img.setAttribute('data-logo-file', file);
+    img.src = basePath + 'logos/' + getThemeLogoFile(file);
+  }
+
+  function updateThemeLogos() {
+    var images = document.querySelectorAll(
+      'img[data-logo-file], img[src$="/OpenAI.svg"], img[src$="/OpenAIDark.svg"]'
+    );
+    for (var i = 0; i < images.length; i += 1) {
+      var file = images[i].getAttribute('data-logo-file');
+      if (!file) {
+        file = 'OpenAI.svg';
+        images[i].setAttribute('data-logo-file', file);
+      }
+      images[i].src = basePath + 'logos/' + getThemeLogoFile(file);
+    }
   }
 
   var CATEGORY_ORDER = [
@@ -382,6 +444,7 @@
     var block = document.createElement('div');
     block.className = 'markdown-block';
     var strong = document.createElement('strong');
+    strong.className = 'markdown-label';
     strong.textContent = label;
     var body = document.createElement('div');
     body.className = 'markdown';
@@ -402,25 +465,30 @@
     }
 
     var chart = document.createElement('div');
-    chart.className = 'export-bar-chart';
+    chart.className = 'export-bar-chart export-score-chart';
+    chart.setAttribute('role', 'list');
+    chart.setAttribute('aria-label', 'Score comparison');
     var count = items.length;
-    var barWidth = count > 16 ? 15 : count > 12 ? 19 : count > 8 ? 24 : 30;
     var labelMax = count > 16 ? 12 : count > 12 ? 14 : count > 8 ? 16 : 20;
 
     for (var i = 0; i < items.length; i += 1) {
       var item = items[i];
       var wrap = document.createElement('div');
       wrap.className = 'export-bar-wrap';
-      wrap.style.width = barWidth + 'px';
+      wrap.setAttribute('role', 'listitem');
+      wrap.setAttribute('aria-label', item.label + ': ' + formatScore(item.score) + ' percent');
 
       var scoreLabel = document.createElement('div');
       scoreLabel.className = 'export-bar-score';
-      scoreLabel.textContent = formatScore(item.score);
+      scoreLabel.textContent = formatScore(item.score) + '%';
       wrap.appendChild(scoreLabel);
 
+      var track = document.createElement('div');
+      track.className = 'export-bar-track';
+      track.setAttribute('aria-hidden', 'true');
       var bar = document.createElement('div');
       bar.className = 'export-bar';
-      bar.style.height = clampScore(item.score) + '%';
+      bar.style.width = clampScore(item.score) + '%';
       if (options && options.color) {
         bar.style.background = options.color;
       }
@@ -430,13 +498,14 @@
         var bubble = document.createElement('div');
         bubble.className = 'export-bar-logo';
         var img = document.createElement('img');
-        img.src = basePath + 'logos/' + logo.file;
+        setLogoSource(img, logo.file);
         img.alt = logo.alt;
         bubble.appendChild(img);
         bar.appendChild(bubble);
       }
 
-      wrap.appendChild(bar);
+      track.appendChild(bar);
+      wrap.appendChild(track);
 
       var label = document.createElement('div');
       label.className = 'export-bar-label';
@@ -453,11 +522,20 @@
 
       if (options && options.linkBase && item.id) {
         wrap.classList.add('export-bar-clickable');
-        wrap.addEventListener('click', (function (id) {
+        wrap.setAttribute('role', 'link');
+        wrap.setAttribute('tabindex', '0');
+        var openRun = (function (id) {
           return function () {
             window.location.href = options.linkBase + id + '.html';
           };
-        })(item.id));
+        })(item.id);
+        wrap.addEventListener('click', openRun);
+        wrap.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            this.click();
+          }
+        });
       }
 
       chart.appendChild(wrap);
@@ -476,15 +554,15 @@
     }
 
     var chart = document.createElement('div');
-    chart.className = 'export-bar-chart';
-    var count = items.length;
-    var barWidth = count > 16 ? 10 : count > 12 ? 12 : count > 8 ? 16 : 22;
+    chart.className = 'export-bar-chart export-stack-chart';
+    chart.setAttribute('role', 'list');
+    chart.setAttribute('aria-label', 'Verdict distribution by category');
 
     for (var i = 0; i < items.length; i += 1) {
       var item = items[i];
       var wrap = document.createElement('div');
       wrap.className = 'export-bar-wrap';
-      wrap.style.width = barWidth + 'px';
+      wrap.setAttribute('role', 'listitem');
 
       var stack = document.createElement('div');
       stack.className = 'export-stack-bar';
@@ -494,16 +572,20 @@
       var passPct = total ? (counts.pass / total) * 100 : 0;
       var partialPct = total ? (counts.partial / total) * 100 : 0;
       var failPct = total ? (counts.fail / total) * 100 : 0;
+      wrap.setAttribute(
+        'aria-label',
+        item.label + ': ' + (counts.pass || 0) + ' pass, ' + (counts.partial || 0) + ' partial, ' + (counts.fail || 0) + ' fail'
+      );
 
       var passSeg = document.createElement('div');
       passSeg.className = 'export-stack-seg pass';
-      passSeg.style.height = passPct + '%';
+      passSeg.style.width = passPct + '%';
       var partialSeg = document.createElement('div');
       partialSeg.className = 'export-stack-seg partial';
-      partialSeg.style.height = partialPct + '%';
+      partialSeg.style.width = partialPct + '%';
       var failSeg = document.createElement('div');
       failSeg.className = 'export-stack-seg fail';
-      failSeg.style.height = failPct + '%';
+      failSeg.style.width = failPct + '%';
 
       stack.appendChild(passSeg);
       stack.appendChild(partialSeg);
@@ -513,7 +595,7 @@
 
       var label = document.createElement('div');
       label.className = 'export-bar-label';
-      renderLabelLines(label, wrapLabel(item.label, 8));
+      renderLabelLines(label, wrapLabelLimit(item.label, 26, 2));
       wrap.appendChild(label);
 
       chart.appendChild(wrap);
@@ -527,21 +609,21 @@
     var passLegend = document.createElement('span');
     var passSwatch = document.createElement('span');
     passSwatch.className = 'swatch';
-    passSwatch.style.background = 'var(--color-teal)';
+    passSwatch.style.background = 'var(--verdict-pass)';
     passLegend.appendChild(passSwatch);
     passLegend.appendChild(document.createTextNode('pass'));
 
     var partialLegend = document.createElement('span');
     var partialSwatch = document.createElement('span');
     partialSwatch.className = 'swatch';
-    partialSwatch.style.background = 'var(--color-gold)';
+    partialSwatch.style.background = 'var(--verdict-partial)';
     partialLegend.appendChild(partialSwatch);
     partialLegend.appendChild(document.createTextNode('partial'));
 
     var failLegend = document.createElement('span');
     var failSwatch = document.createElement('span');
     failSwatch.className = 'swatch';
-    failSwatch.style.background = 'var(--color-coral)';
+    failSwatch.style.background = 'var(--verdict-fail)';
     failLegend.appendChild(failSwatch);
     failLegend.appendChild(document.createTextNode('fail'));
 
@@ -697,6 +779,18 @@
     ].join('');
   }
 
+  function buildCompactRankingRecordHtml(uniqueFirsts) {
+    if (!uniqueFirsts || !uniqueFirsts.length) return '';
+    var recordLabel = uniqueFirsts.length === 1 ? 'record' : 'records';
+    var detail = 'Category records: ' + uniqueFirsts.join(', ');
+    return [
+      '<span class="ranking-compact-record" title="' + escapeHtml(detail) + '" aria-label="' + escapeHtml(detail) + '">',
+      '<strong>' + uniqueFirsts.length + '</strong>',
+      '<span>' + recordLabel + '</span>',
+      '</span>'
+    ].join('');
+  }
+
   function buildRankingItemHtml(entry, index) {
     var run = entry.run;
     var modelLabel = run.model_name || run.model_identifier || 'Unknown model';
@@ -709,7 +803,7 @@
       ? '<p class="ranking-model-id">' + escapeHtml(run.model_identifier) + '</p>'
       : '';
     var logoMarkup = logo
-      ? '<span class="ranking-model-logo"><img src="' + escapeHtml(basePath + 'logos/' + logo.file) + '" alt="' + escapeHtml(logo.alt) + '" /></span>'
+      ? '<span class="ranking-model-logo"><img data-logo-file="' + escapeHtml(logo.file) + '" src="' + escapeHtml(basePath + 'logos/' + getThemeLogoFile(logo.file)) + '" alt="' + escapeHtml(logo.alt) + '" /></span>'
       : '';
     var trackedRuns = entry.fullRuns > 0
       ? entry.totalRuns + ' tracked \u00b7 ' + entry.fullRuns + ' full'
@@ -729,6 +823,7 @@
       vendorLabel ? '<p class="export-overline ranking-model-eyebrow">' + escapeHtml(vendorLabel) + '</p>' : '',
       '<h3 class="ranking-model-name"><a class="ranking-link" href="' + escapeHtml(basePath + 'run/' + run.id + '.html') + '">' + escapeHtml(split.model || modelLabel) + '</a></h3>',
       identifierLine,
+      buildCompactRankingRecordHtml(entry.uniqueFirsts),
       '</div>',
       '</div>',
       '<div class="ranking-score-block">',
@@ -779,7 +874,8 @@
 
     function renderBoard() {
       var filtered = runs.filter(matchesSearch);
-      var chartData = filtered.slice(0, 16).map(function (run) {
+      var chartLimit = window.matchMedia && window.matchMedia('(max-width: 700px)').matches ? 8 : 12;
+      var chartData = filtered.slice(0, chartLimit).map(function (run) {
         return {
           id: run.id,
           label: run.model_name || run.model_identifier,
@@ -822,7 +918,7 @@
         if (logo) {
           var img = document.createElement('img');
           img.className = 'vendor-logo';
-          img.src = basePath + 'logos/' + logo.file;
+          setLogoSource(img, logo.file);
           img.alt = logo.alt;
           img.width = 18;
           img.height = 18;
@@ -906,6 +1002,275 @@
     listEl.appendChild(list);
   }
 
+  function getCategoryScore(run, categoryName) {
+    var match = (run.categoryScores || []).find(function (item) {
+      return item.categoryName === categoryName;
+    });
+    return match ? Number(match.score) || 0 : null;
+  }
+
+  function getBestFullRunsByModel(runs, categoryCount) {
+    var best = {};
+    (runs || []).forEach(function (run) {
+      var scores = run.categoryScores || [];
+      if (run.category_filter || scores.length < categoryCount) return;
+      var key = run.model_identifier || run.model_name || run.id;
+      if (!best[key] || (run.final_score || 0) > (best[key].final_score || 0)) {
+        best[key] = run;
+      }
+    });
+    return Object.keys(best).map(function (key) { return best[key]; }).sort(function (a, b) {
+      return (b.final_score || 0) - (a.final_score || 0);
+    });
+  }
+
+  function appendAboutStat(container, value, label, note) {
+    var item = document.createElement('div');
+    item.className = 'about-stat';
+    var strong = document.createElement('strong');
+    strong.textContent = value;
+    var span = document.createElement('span');
+    span.textContent = label;
+    item.appendChild(strong);
+    item.appendChild(span);
+    if (note) {
+      var small = document.createElement('small');
+      small.textContent = note;
+      item.appendChild(small);
+    }
+    container.appendChild(item);
+  }
+
+  function formatPointChange(value) {
+    var numeric = Number(value) || 0;
+    if (Math.abs(numeric) < 0.05) return '0.0 pts';
+    return (numeric > 0 ? '+' : '\u2212') + Math.abs(numeric).toFixed(1) + ' pts';
+  }
+
+  function appendAboutModelLabel(container, run, rank) {
+    if (rank) {
+      var rankLabel = document.createElement('span');
+      rankLabel.className = 'about-model-rank';
+      rankLabel.textContent = '#' + rank;
+      container.appendChild(rankLabel);
+    }
+    var logo = getVendorLogo(run.model_identifier, run.model_name);
+    if (logo) {
+      var img = document.createElement('img');
+      img.className = 'vendor-logo';
+      img.alt = logo.alt;
+      img.width = 20;
+      img.height = 20;
+      setLogoSource(img, logo.file);
+      container.appendChild(img);
+    }
+    var label = document.createElement('span');
+    label.textContent = stripVendorName(run.model_name || run.model_identifier, logo ? logo.alt : '');
+    container.appendChild(label);
+  }
+
+  function renderAboutPolicyChart(container, items) {
+    clearContainer(container);
+    if (!items.length) {
+      container.innerHTML = '<div class="export-empty">No comparable full runs are available yet.</div>';
+      return;
+    }
+
+    var list = document.createElement('div');
+    list.className = 'about-policy-list';
+
+    items.forEach(function (item) {
+      var row = document.createElement('div');
+      row.className = 'about-policy-row';
+      row.title =
+        formatScore(item.explicitScore) + '% default to ' +
+        formatScore(item.systemScore) + '% with system instruction';
+
+      var model = document.createElement('div');
+      model.className = 'about-model-label';
+      appendAboutModelLabel(model, item.run);
+      row.appendChild(model);
+
+      var bars = document.createElement('div');
+      bars.className = 'about-policy-bars';
+
+      function appendPolicyBar(labelText, score, modifier) {
+        var line = document.createElement('div');
+        line.className = 'about-policy-line';
+        var label = document.createElement('span');
+        label.textContent = labelText;
+        var track = document.createElement('div');
+        track.className = 'about-policy-track';
+        var fill = document.createElement('span');
+        fill.className = 'about-policy-fill ' + modifier;
+        fill.style.width = clampScore(score) + '%';
+        track.appendChild(fill);
+        var value = document.createElement('strong');
+        value.textContent = formatScore(score) + '%';
+        line.appendChild(label);
+        line.appendChild(track);
+        line.appendChild(value);
+        bars.appendChild(line);
+      }
+
+      appendPolicyBar('Default', item.explicitScore, 'about-policy-fill--default');
+      appendPolicyBar('System', item.systemScore, 'about-policy-fill--system');
+      row.appendChild(bars);
+
+      var delta = document.createElement('div');
+      delta.className = 'about-delta ' + (item.relativeChange >= 0 ? 'about-delta--up' : 'about-delta--down');
+      var deltaValue = document.createElement('strong');
+      deltaValue.textContent = formatPercentChange(item.relativeChange);
+      var deltaPoints = document.createElement('small');
+      deltaPoints.textContent = formatPointChange(item.pointChange);
+      delta.appendChild(deltaValue);
+      delta.appendChild(deltaPoints);
+      row.appendChild(delta);
+
+      list.appendChild(row);
+    });
+
+    container.appendChild(list);
+  }
+
+  function renderAboutCategoryRace(container, items) {
+    clearContainer(container);
+    if (!items.length) {
+      container.innerHTML = '<div class="export-empty">No category scores are available yet.</div>';
+      return;
+    }
+
+    var leaderScore = items[0].score || 0;
+    var list = document.createElement('div');
+    list.className = 'about-race-list';
+
+    items.forEach(function (item, index) {
+      var row = document.createElement('div');
+      row.className = 'about-race-row';
+
+      var model = document.createElement('div');
+      model.className = 'about-model-label';
+      appendAboutModelLabel(model, item.run, index + 1);
+      row.appendChild(model);
+
+      var track = document.createElement('div');
+      track.className = 'about-race-track';
+      var fill = document.createElement('span');
+      fill.style.width = clampScore(item.score) + '%';
+      track.appendChild(fill);
+      row.appendChild(track);
+
+      var score = document.createElement('div');
+      score.className = 'about-race-score';
+      var value = document.createElement('strong');
+      value.textContent = formatScore(item.score) + '%';
+      var change = document.createElement('small');
+      if (index === 0 || leaderScore <= 0) {
+        change.textContent = 'Baseline';
+        change.className = 'about-race-baseline';
+      } else {
+        change.textContent = formatPercentChange(((item.score - leaderScore) / leaderScore) * 100);
+      }
+      score.appendChild(value);
+      score.appendChild(change);
+      row.appendChild(score);
+
+      list.appendChild(row);
+    });
+
+    container.appendChild(list);
+  }
+
+  function renderAbout(data) {
+    var statsEl = document.getElementById('about-stats');
+    var profileEl = document.getElementById('about-profile-chart');
+    var policyEl = document.getElementById('about-policy-chart');
+    var overfitEl = document.getElementById('about-overfit-chart');
+    if (!statsEl || !profileEl || !policyEl || !overfitEl) return;
+
+    var runs = data && data.runs ? data.runs.slice() : [];
+    var categories = data && data.categories ? data.categories.slice() : [];
+    var bestFullRuns = getBestFullRunsByModel(runs, categories.length || 8);
+    var fullRuns = runs.filter(function (run) {
+      return !run.category_filter && (run.categoryScores || []).length >= (categories.length || 8);
+    });
+    var maxTests = fullRuns.reduce(function (max, run) {
+      return Math.max(max, Number(run.total_tests) || 0);
+    }, 0);
+
+    clearContainer(statsEl);
+    appendAboutStat(statsEl, String(categories.length || 8), 'Categories', '100 cases each');
+    appendAboutStat(statsEl, String(maxTests || 800), 'Prompts per full run', 'Versioned test set');
+    appendAboutStat(statsEl, String(bestFullRuns.length), 'Models published', 'Best full run / model');
+    appendAboutStat(statsEl, String(runs.length), 'Completed runs', 'Current export');
+
+    var evidenceNote = document.getElementById('about-evidence-note');
+    if (evidenceNote && data && data.generated_at) {
+      evidenceNote.textContent =
+        'Calculated from the current public export, generated ' +
+        formatDate(data.generated_at) +
+        '. Figures update when the benchmark is regenerated.';
+    }
+
+    var leader = bestFullRuns[0];
+    if (leader) {
+      var leaderLogo = getVendorLogo(leader.model_identifier, leader.model_name);
+      var leaderLabel = stripVendorName(
+        leader.model_name || leader.model_identifier,
+        leaderLogo ? leaderLogo.alt : ''
+      );
+      var profileTitle = document.getElementById('about-profile-title');
+      var profileScore = document.getElementById('about-profile-score');
+      var profileCopy = document.getElementById('about-profile-copy');
+      if (profileTitle) profileTitle.textContent = leaderLabel + ' by category';
+      if (profileScore) profileScore.textContent = formatScore(leader.final_score) + '% overall';
+      if (profileCopy) {
+        var categoryValues = (leader.categoryScores || []).map(function (item) { return item.score || 0; });
+        var low = categoryValues.length ? Math.min.apply(Math, categoryValues) : 0;
+        var high = categoryValues.length ? Math.max.apply(Math, categoryValues) : 0;
+        profileCopy.textContent =
+          'The current #1 full run spans ' +
+          formatScore(low) + '% to ' + formatScore(high) +
+          ' across categories. That spread is what a single overall score hides.';
+      }
+      var orderedProfile = sortByCategoryOrder(
+        (leader.categoryScores || []).map(function (item) {
+          return { label: item.categoryName, score: item.score || 0 };
+        }),
+        function (item) { return { name: item.label }; }
+      );
+      renderScoreChart(profileEl, orderedProfile, { labelMode: 'category' });
+    } else {
+      profileEl.innerHTML = '<div class="export-empty">No complete model runs are available yet.</div>';
+    }
+
+    var policyItems = bestFullRuns.map(function (run) {
+      var explicitScore = getCategoryScore(run, 'NSFW (Explicit)');
+      var systemScore = getCategoryScore(run, 'NSFW (System Prompt)');
+      if (explicitScore === null || systemScore === null || explicitScore < 10) return null;
+      var pointChange = systemScore - explicitScore;
+      return {
+        run: run,
+        explicitScore: explicitScore,
+        systemScore: systemScore,
+        pointChange: pointChange,
+        relativeChange: explicitScore > 0 ? (pointChange / explicitScore) * 100 : 0
+      };
+    }).filter(Boolean).sort(function (a, b) {
+      return Math.abs(b.pointChange) - Math.abs(a.pointChange);
+    }).slice(0, 6);
+    renderAboutPolicyChart(policyEl, policyItems);
+
+    var overfitItems = bestFullRuns.map(function (run) {
+      return { run: run, score: getCategoryScore(run, 'Overfit') };
+    }).filter(function (item) {
+      return item.score !== null;
+    }).sort(function (a, b) {
+      return b.score - a.score;
+    }).slice(0, 5);
+    renderAboutCategoryRace(overfitEl, overfitItems);
+  }
+
   function renderCompare(data) {
     var listEl = document.getElementById('compare-list');
     var contentEl = document.getElementById('compare-content');
@@ -981,7 +1346,7 @@
       if (logo) {
         var img = document.createElement('img');
         img.className = 'vendor-logo';
-        img.src = basePath + 'logos/' + logo.file;
+        setLogoSource(img, logo.file);
         img.alt = logo.alt;
         img.width = 18;
         img.height = 18;
@@ -1131,7 +1496,7 @@
         if (logo) {
           var img = document.createElement('img');
           img.className = 'vendor-logo';
-          img.src = basePath + 'logos/' + logo.file;
+          setLogoSource(img, logo.file);
           img.alt = logo.alt;
           img.width = 18;
           img.height = 18;
@@ -1182,7 +1547,7 @@
         if (logo) {
           var img = document.createElement('img');
           img.className = 'vendor-logo';
-          img.src = basePath + 'logos/' + logo.file;
+          setLogoSource(img, logo.file);
           img.alt = logo.alt;
           img.width = 20;
           img.height = 20;
@@ -1257,7 +1622,7 @@
       var table = document.createElement('table');
       table.className = 'table compare-table';
       var thead = document.createElement('thead');
-      thead.innerHTML = '<tr><th>Category</th><th>Model</th><th>Score</th><th>Pass</th><th>Partial</th><th>Fail</th></tr>';
+      thead.innerHTML = '<tr><th>Category</th><th>Model</th><th>Score</th><th>Change vs #1</th><th>Pass</th><th>Partial</th><th>Fail</th></tr>';
       table.appendChild(thead);
       var tbody = document.createElement('tbody');
 
@@ -1277,26 +1642,38 @@
           var bLabel = b.run.model_name || b.run.model_identifier;
           return String(aLabel).localeCompare(String(bLabel));
         });
+        var leaderScore = perRun.length ? Number(perRun[0].score) || 0 : 0;
 
         perRun.forEach(function (entry, index) {
           var row = document.createElement('tr');
+          row.setAttribute('data-category', isOverfitName(name) ? (name + '*') : name);
+          row.setAttribute('data-category-start', index === 0 ? 'true' : 'false');
+          var tiedWithLeader = index > 0 && Math.abs(entry.score - leaderScore) < 0.05;
+          if (index === 0) row.classList.add('compare-category-leader');
+          if (tiedWithLeader) row.classList.add('compare-category-tied');
           if (index === 0) {
             var catCell = document.createElement('td');
             catCell.className = 'compare-category-cell';
             catCell.setAttribute('rowspan', perRun.length);
+            catCell.setAttribute('data-label', 'Category');
             catCell.textContent = isOverfitName(name) ? (name + '*') : name;
             row.appendChild(catCell);
           }
 
           var modelCell = document.createElement('td');
           modelCell.className = 'compare-model-cell';
+          modelCell.setAttribute('data-label', 'Model');
           var labelWrap = document.createElement('div');
           labelWrap.className = 'compare-model-label';
+          var rankBadge = document.createElement('span');
+          rankBadge.className = 'compare-category-rank';
+          rankBadge.textContent = '#' + (index + 1);
+          labelWrap.appendChild(rankBadge);
           var logo = getVendorLogo(entry.run.model_identifier, entry.run.model_name);
           if (logo) {
             var img = document.createElement('img');
             img.className = 'vendor-logo';
-            img.src = basePath + 'logos/' + logo.file;
+            setLogoSource(img, logo.file);
             img.alt = logo.alt;
             img.width = 20;
             img.height = 20;
@@ -1309,10 +1686,47 @@
           row.appendChild(modelCell);
 
           var scoreCell = document.createElement('td');
+          scoreCell.className = 'compare-score-cell';
+          scoreCell.setAttribute('data-label', 'Score');
           scoreCell.textContent = formatScore(entry.score) + '%';
           row.appendChild(scoreCell);
 
+          var deltaCell = document.createElement('td');
+          deltaCell.className = 'compare-delta-cell';
+          deltaCell.setAttribute('data-label', 'Change vs #1');
+          var deltaWrap = document.createElement('div');
+          deltaWrap.className = 'compare-delta';
+          var deltaValue = document.createElement('strong');
+          var deltaLabel = document.createElement('small');
+          deltaLabel.className = 'compare-delta-label';
+          if (index === 0) {
+            deltaValue.className = 'compare-delta-value compare-delta-value--leader';
+            deltaValue.textContent = 'Baseline';
+            deltaLabel.textContent = 'Category #1';
+          } else if (tiedWithLeader) {
+            deltaValue.className = 'compare-delta-value compare-delta-value--tied';
+            deltaValue.textContent = '0.0%';
+            deltaLabel.textContent = 'Tied #1';
+          } else {
+            var relativeChange = leaderScore > 0
+              ? ((entry.score - leaderScore) / leaderScore) * 100
+              : 0;
+            deltaValue.className = 'compare-delta-value compare-delta-value--decline';
+            deltaValue.textContent = formatPercentChange(relativeChange);
+            deltaLabel.textContent = 'vs category #1';
+            deltaCell.title =
+              Math.abs(entry.score - leaderScore).toFixed(1) +
+              ' percentage points below the ' +
+              formatScore(leaderScore) +
+              '% category leader';
+          }
+          deltaWrap.appendChild(deltaValue);
+          deltaWrap.appendChild(deltaLabel);
+          deltaCell.appendChild(deltaWrap);
+          row.appendChild(deltaCell);
+
           var passCell = document.createElement('td');
+          passCell.setAttribute('data-label', 'Pass');
           var passTag = document.createElement('span');
           passTag.className = 'tag pass tag-fixed';
           passTag.textContent = 'Pass ' + (entry.counts.pass || 0);
@@ -1320,6 +1734,7 @@
           row.appendChild(passCell);
 
           var partialCell = document.createElement('td');
+          partialCell.setAttribute('data-label', 'Partial');
           var partialTag = document.createElement('span');
           partialTag.className = 'tag partial tag-fixed';
           partialTag.textContent = 'Partial ' + (entry.counts.partial || 0);
@@ -1327,6 +1742,7 @@
           row.appendChild(partialCell);
 
           var failCell = document.createElement('td');
+          failCell.setAttribute('data-label', 'Fail');
           var failTag = document.createElement('span');
           failTag.className = 'tag fail tag-fixed';
           failTag.textContent = 'Fail ' + (entry.counts.fail || 0);
@@ -1520,7 +1936,7 @@
     if (logo) {
       var img = document.createElement('img');
       img.className = 'export-logo-inline';
-      img.src = basePath + 'logos/' + logo.file;
+      setLogoSource(img, logo.file);
       img.alt = logo.alt;
       title.appendChild(img);
     }
@@ -1784,7 +2200,7 @@
     detailSection.appendChild(detailTitle);
 
     var detailTable = document.createElement('table');
-    detailTable.className = 'table';
+    detailTable.className = 'table run-category-table';
     var detailHead = document.createElement('thead');
     detailHead.innerHTML = '<tr><th>Category</th><th>Score</th><th>Pass</th><th>Partial</th><th>Fail</th><th>Difficulty</th></tr>';
     detailTable.appendChild(detailHead);
@@ -1793,7 +2209,10 @@
     var categoryDetails = buildCategoryDetails(results, categoryScores);
     categoryDetails.forEach(function (detail) {
       var row = document.createElement('tr');
+      row.setAttribute('data-category', isOverfitName(detail.name, detail.slug) ? detail.name + '*' : detail.name);
       var nameCell = document.createElement('td');
+      nameCell.className = 'run-category-name-cell';
+      nameCell.setAttribute('data-label', 'Category');
       var nameWrap = document.createElement('div');
       nameWrap.className = 'category-name-wrap';
       var nameText = document.createElement('span');
@@ -1809,10 +2228,14 @@
       row.appendChild(nameCell);
 
       var scoreCell = document.createElement('td');
+      scoreCell.className = 'run-category-score-cell';
+      scoreCell.setAttribute('data-label', 'Score');
       scoreCell.textContent = detail.score + '%';
       row.appendChild(scoreCell);
 
       var passCell = document.createElement('td');
+      passCell.className = 'run-category-verdict-cell';
+      passCell.setAttribute('data-label', 'Pass');
       var passTag = document.createElement('span');
       passTag.className = 'tag pass tag-fixed';
       passTag.textContent = 'Pass ' + detail.pass;
@@ -1820,6 +2243,8 @@
       row.appendChild(passCell);
 
       var partialCell = document.createElement('td');
+      partialCell.className = 'run-category-verdict-cell';
+      partialCell.setAttribute('data-label', 'Partial');
       var partialTag = document.createElement('span');
       partialTag.className = 'tag partial tag-fixed';
       partialTag.textContent = 'Partial ' + detail.partial;
@@ -1827,6 +2252,8 @@
       row.appendChild(partialCell);
 
       var failCell = document.createElement('td');
+      failCell.className = 'run-category-verdict-cell';
+      failCell.setAttribute('data-label', 'Fail');
       var failTag = document.createElement('span');
       failTag.className = 'tag fail tag-fixed';
       failTag.textContent = 'Fail ' + detail.fail;
@@ -1834,6 +2261,8 @@
       row.appendChild(failCell);
 
       var difficultyCell = document.createElement('td');
+      difficultyCell.className = 'run-category-difficulty-cell';
+      difficultyCell.setAttribute('data-label', 'Difficulty mix');
       difficultyCell.textContent = 'Easy ' + detail.difficulty.easy + ' \u00b7 Med ' + detail.difficulty.medium + ' \u00b7 Hard ' + detail.difficulty.hard;
       row.appendChild(difficultyCell);
 
@@ -1898,6 +2327,7 @@
     toolbar.style.justifyContent = 'space-between';
 
     var filterWrap = document.createElement('div');
+    filterWrap.className = 'testcase-filter-buttons';
     filterWrap.style.display = 'flex';
     filterWrap.style.gap = '8px';
     filterWrap.style.alignItems = 'center';
@@ -1935,6 +2365,7 @@
     });
 
     var searchWrap = document.createElement('div');
+    searchWrap.className = 'testcase-search-wrap';
     searchWrap.style.display = 'flex';
     searchWrap.style.gap = '16px';
     searchWrap.style.alignItems = 'flex-end';
@@ -1961,7 +2392,7 @@
     wrapper.appendChild(toolbar);
 
     var statusWrap = document.createElement('div');
-    statusWrap.className = 'form-actions';
+    statusWrap.className = 'form-actions testcase-status';
     statusWrap.style.marginTop = '8px';
     var statusText = document.createElement('span');
     statusWrap.appendChild(statusText);
@@ -2226,6 +2657,15 @@
       fetchJson(dataBase + 'runs.json').then(renderCompare).catch(function () {
         var listEl = document.getElementById('compare-list');
         if (listEl) listEl.innerHTML = '<div class="export-empty">Unable to load data.</div>';
+      });
+    } else if (page === 'about') {
+      fetchJson(dataBase + 'runs.json').then(renderAbout).catch(function () {
+        var profileEl = document.getElementById('about-profile-chart');
+        var policyEl = document.getElementById('about-policy-chart');
+        var overfitEl = document.getElementById('about-overfit-chart');
+        if (profileEl) profileEl.innerHTML = '<div class="export-empty">Unable to load benchmark data.</div>';
+        if (policyEl) policyEl.innerHTML = '<div class="export-empty">Unable to load benchmark data.</div>';
+        if (overfitEl) overfitEl.innerHTML = '<div class="export-empty">Unable to load benchmark data.</div>';
       });
     } else if (page === 'run') {
       var path = window.location.pathname.split('/');
