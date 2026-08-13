@@ -97,7 +97,9 @@
     { prefixes: ['nvidia/'], idIncludes: ['nvidia', 'nemotron'], nameIncludes: ['nvidia', 'nemotron'], file: 'Nvidia.png', alt: 'NVIDIA' },
     { prefixes: ['arcee-ai/', 'arcee/'], idIncludes: ['arcee'], nameIncludes: ['arcee'], file: 'arcee-ai.png', alt: 'Arcee AI' },
     { prefixes: ['xiaomi/'], idIncludes: ['xiaomi'], nameIncludes: ['xiaomi'], file: 'xiaomi.png', alt: 'Xiaomi' },
-    { prefixes: ['zai/'], idIncludes: ['z-ai', 'zai'], nameIncludes: ['z-ai', 'zai'], file: 'zAI.png', alt: 'zAI' }
+    { prefixes: ['zai/'], idIncludes: ['z-ai', 'zai'], nameIncludes: ['z-ai', 'zai'], file: 'zAI.png', alt: 'zAI' },
+    { prefixes: ['meta-llama/', 'meta/'], idIncludes: ['meta-llama'], nameIncludes: ['meta llama', 'meta-llama', 'llama'], file: 'Meta.png', alt: 'Meta' },
+    { prefixes: ['meituan/'], idIncludes: ['meituan', 'longcat'], nameIncludes: ['meituan', 'longcat'], file: 'meituan.svg', alt: 'Meituan' }
   ];
 
   function matchesRule(rule, identifier, name) {
@@ -124,7 +126,7 @@
         return { file: LOGO_RULES[i].file, alt: LOGO_RULES[i].alt };
       }
     }
-    return null;
+    return { file: 'OpenRouter.svg', alt: 'OpenRouter' };
   }
 
   function getThemeLogoFile(file) {
