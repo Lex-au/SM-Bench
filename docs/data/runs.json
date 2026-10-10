@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-29T20:34:31.881Z",
+  "generated_at": "2026-10-10T06:44:44.482Z",
   "runs": [
     {
       "id": "624abd34-944d-430e-8d42-dd6e5adbd8d5",
@@ -4388,6 +4388,108 @@
       "total_tests": 800
     },
     {
+      "id": "67eb843c-49a4-48fe-9648-0ee63b7c6496",
+      "model_name": "Anthropic: Claude Haiku 5.5",
+      "model_identifier": "anthropic/claude-haiku-5.5",
+      "final_score": 74.32,
+      "final_rating": "C",
+      "completed_at": "2026-10-10T06:41:42.859Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 0.7612861,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 55.9,
+          "weight": 1,
+          "counts": {
+            "pass": 60,
+            "fail": 39,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 13.68,
+          "weight": 1,
+          "counts": {
+            "pass": 12,
+            "fail": 87,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 94.04,
+          "weight": 1,
+          "counts": {
+            "pass": 95,
+            "fail": 5,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 97.76,
+          "weight": 1,
+          "counts": {
+            "pass": 98,
+            "fail": 2,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 95.81,
+          "weight": 1,
+          "counts": {
+            "pass": 95,
+            "fail": 5,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 89.58,
+          "weight": 1,
+          "counts": {
+            "pass": 89,
+            "fail": 8,
+            "partial": 3
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 82.2,
+          "weight": 1,
+          "counts": {
+            "pass": 83,
+            "fail": 16,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 69.95,
+          "weight": 2,
+          "counts": {
+            "pass": 72,
+            "fail": 28,
+            "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
       "id": "2902f8f1-e38a-4a40-aed0-507e6f906f87",
       "model_name": "Ox Alpha",
       "model_identifier": "stealth/ox-alpha",
@@ -6624,6 +6726,108 @@
           "counts": {
             "pass": 65,
             "fail": 35,
+            "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
+      "id": "0f909252-303a-4ec3-aa3f-5ebba55c03f8",
+      "model_name": "Mistral: Mistral Large 4",
+      "model_identifier": "mistralai/mistral-large-4-0",
+      "final_score": 66.09,
+      "final_rating": "D",
+      "completed_at": "2026-10-10T06:28:08.991Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 2.4424545,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 48.88,
+          "weight": 1,
+          "counts": {
+            "pass": 54,
+            "fail": 46,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 3.98,
+          "weight": 1,
+          "counts": {
+            "pass": 4,
+            "fail": 96,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 81.65,
+          "weight": 1,
+          "counts": {
+            "pass": 84,
+            "fail": 15,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 79.82,
+          "weight": 1,
+          "counts": {
+            "pass": 83,
+            "fail": 17,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 94.76,
+          "weight": 1,
+          "counts": {
+            "pass": 95,
+            "fail": 5,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 86.31,
+          "weight": 1,
+          "counts": {
+            "pass": 87,
+            "fail": 11,
+            "partial": 2
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 82.44,
+          "weight": 1,
+          "counts": {
+            "pass": 85,
+            "fail": 15,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 58.47,
+          "weight": 2,
+          "counts": {
+            "pass": 61,
+            "fail": 39,
             "partial": 0
           }
         }
