@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-17T20:26:32.981Z",
+  "generated_at": "2026-11-18T12:28:01.858Z",
   "runs": [
     {
       "id": "0af9e790-a1c3-4a2c-8fba-72cfe0d1644b",
@@ -3572,6 +3572,108 @@
       "total_tests": 800
     },
     {
+      "id": "b0f558e6-dbe0-4019-9801-724dad138694",
+      "model_name": "Meta: Muse Spark 1.3",
+      "model_identifier": "meta/muse-spark-1.3",
+      "final_score": 77.52,
+      "final_rating": "C+",
+      "completed_at": "2026-11-18T11:21:09.551Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 5.973625,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 80.06,
+          "weight": 1,
+          "counts": {
+            "pass": 82,
+            "fail": 15,
+            "partial": 3
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 58.21,
+          "weight": 1,
+          "counts": {
+            "pass": 59,
+            "fail": 41,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 80.96,
+          "weight": 1,
+          "counts": {
+            "pass": 83,
+            "fail": 16,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 80.27,
+          "weight": 1,
+          "counts": {
+            "pass": 83,
+            "fail": 17,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 99.48,
+          "weight": 1,
+          "counts": {
+            "pass": 99,
+            "fail": 1,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 85.71,
+          "weight": 1,
+          "counts": {
+            "pass": 88,
+            "fail": 11,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 78.54,
+          "weight": 1,
+          "counts": {
+            "pass": 81,
+            "fail": 19,
+            "partial": 0
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 67.21,
+          "weight": 2,
+          "counts": {
+            "pass": 70,
+            "fail": 30,
+            "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
       "id": "78ce067f-ddb3-4354-b0ad-d3da1b4e85f9",
       "model_name": "Google: Gemini 3.5 Flash Lite",
       "model_identifier": "google/gemini-3.5-flash-lite",
@@ -4279,6 +4381,108 @@
             "pass": 88,
             "fail": 12,
             "partial": 0
+          }
+        }
+      ],
+      "category_filter": null,
+      "total_tests": 800
+    },
+    {
+      "id": "71bcaf98-a4de-4c1c-b036-3784456b1fee",
+      "model_name": "Meta: Muse Wonder",
+      "model_identifier": "meta/muse-wonder",
+      "final_score": 75,
+      "final_rating": "C+",
+      "completed_at": "2026-11-18T12:26:56.366Z",
+      "benchmark_version": "1.0.0",
+      "total_cost": 25.432096,
+      "categoryScores": [
+        {
+          "categoryId": "98c62d20-71a0-46e1-90ed-7106be36bd47",
+          "categoryName": "EQ Boundaries",
+          "score": 68.26,
+          "weight": 1,
+          "counts": {
+            "pass": 71,
+            "fail": 21,
+            "partial": 8
+          }
+        },
+        {
+          "categoryId": "732cfbac-fc60-491c-bc6a-36a89e5a80dd",
+          "categoryName": "NSFW (Explicit)",
+          "score": 36.82,
+          "weight": 1,
+          "counts": {
+            "pass": 36,
+            "fail": 60,
+            "partial": 4
+          }
+        },
+        {
+          "categoryId": "a1866c2f-1098-40c9-8866-8e3aea51856a",
+          "categoryName": "NSFW (System Prompt)",
+          "score": 66.51,
+          "weight": 1,
+          "counts": {
+            "pass": 60,
+            "fail": 27,
+            "partial": 13
+          }
+        },
+        {
+          "categoryId": "00dbc8f8-20cd-4fa2-a068-20090a2d4236",
+          "categoryName": "Creative Writing (Mature Themes)",
+          "score": 92.15,
+          "weight": 1,
+          "counts": {
+            "pass": 92,
+            "fail": 7,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "13fd5872-2518-4156-a43d-8e02aca20718",
+          "categoryName": "Anti-hallucination",
+          "score": 96.34,
+          "weight": 1,
+          "counts": {
+            "pass": 96,
+            "fail": 3,
+            "partial": 1
+          }
+        },
+        {
+          "categoryId": "da481fd4-5107-4eba-b774-648e5031ecfd",
+          "categoryName": "Ambiguous Interpretation",
+          "score": 64.58,
+          "weight": 1,
+          "counts": {
+            "pass": 65,
+            "fail": 27,
+            "partial": 8
+          }
+        },
+        {
+          "categoryId": "6c65a732-de66-446a-88e1-2e3a93c218a0",
+          "categoryName": "Adversarial (Hostile Logic)",
+          "score": 85.85,
+          "weight": 1,
+          "counts": {
+            "pass": 85,
+            "fail": 12,
+            "partial": 3
+          }
+        },
+        {
+          "categoryId": "f4b37cee-bb54-4f3d-bfb4-99e24684b3f8",
+          "categoryName": "Overfit",
+          "score": 82.24,
+          "weight": 2,
+          "counts": {
+            "pass": 84,
+            "fail": 15,
+            "partial": 1
           }
         }
       ],
